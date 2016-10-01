@@ -5,6 +5,10 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class TileEntityLanternLight extends TileEntityBase {
 
+    public void removeLight() {
+
+    }
+
     @Override
     protected void writeTileNBT(NBTTagCompound tag) {
 

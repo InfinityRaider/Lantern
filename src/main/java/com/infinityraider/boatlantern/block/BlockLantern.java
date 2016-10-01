@@ -1,12 +1,15 @@
 package com.infinityraider.boatlantern.block;
 
 import com.infinityraider.boatlantern.block.tile.TileEntityLantern;
+import com.infinityraider.boatlantern.handler.LightingHandler;
 import com.infinityraider.infinitylib.block.BlockBaseTile;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -59,7 +62,7 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
 
     @Override
     public Class<? extends ItemBlock> getItemBlockClass() {
-        return null;
+        return BlockLantern.Item.class;
     }
 
     @Override
@@ -72,6 +75,43 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     @SuppressWarnings("deprecation")
     public boolean isOpaqueCube(IBlockState state) {
         return false;
+    }
+
+    public static class Item extends ItemBlock {
+        public Item(BlockLantern lantern) {
+            super(lantern);
+        }
+
+        @Override
+        public void onUpdate(ItemStack stack, World worldIn, Entity entity, int itemSlot, boolean isSelected) {
+            if(shouldLightTheWorld(stack, entity, itemSlot, isSelected)) {
+                LightingHandler.getInstance().spreadLight(entity);
+                this.decrementBurnTime(stack);
+            }
+        }
+
+        public boolean isLit(ItemStack stack) {
+            //TODO: implement this
+            return true;
+        }
+
+        protected boolean shouldLightTheWorld(ItemStack stack, Entity entity, int slot, boolean isSelected) {
+            //TODO: implement this
+            return true;
+        }
+
+        protected void decrementBurnTime(ItemStack stack) {
+            //TODO: implement this
+        }
+
+        @Override
+        public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
+            if(oldStack == null) {
+                return newStack != null;
+            } else {
+                return newStack == null || oldStack.getItem() != newStack.getItem();
+            }
+        }
     }
 
     public static class Properties {

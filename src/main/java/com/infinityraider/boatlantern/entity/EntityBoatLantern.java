@@ -1,20 +1,32 @@
 package com.infinityraider.boatlantern.entity;
 
+import com.infinityraider.boatlantern.handler.LightingHandler;
+import com.infinityraider.boatlantern.reference.Names;
+import com.infinityraider.boatlantern.registry.BlockRegistry;
 import com.infinityraider.boatlantern.render.RenderEntityBoatLantern;
+import com.infinityraider.infinitylib.utility.inventory.IInventorySerializableItemHandler;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.datasync.DataParameter;
+import net.minecraft.network.datasync.DataSerializers;
+import net.minecraft.network.datasync.EntityDataManager;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class EntityBoatLantern extends EntityBoat {
+import javax.annotation.Nullable;
+
+public class EntityBoatLantern extends EntityBoat implements IInventorySerializableItemHandler {
+    public static final DataParameter<Integer> DATA_BURN_TICKS = EntityDataManager.createKey(EntityBoatLantern.class, DataSerializers.VARINT);
+
+    private ItemStack fuelStack;
+
     /** Constructor which is used to instantiate the entity client side or server side after a world reload using reflection */
     @SuppressWarnings("unused")
     public EntityBoatLantern(World world) {
@@ -41,11 +53,51 @@ public class EntityBoatLantern extends EntityBoat {
     @Override
     protected void entityInit() {
         super.entityInit();
+        this.getDataManager().register(DATA_BURN_TICKS, 0);
     }
 
     @Override
     public void onUpdate() {
         super.onUpdate();
+        this.burnUpdate();
+    }
+
+    protected void burnUpdate() {
+        int ticks = this.getRemainingBurnTicks();
+        if(ticks > 0) {
+            LightingHandler.getInstance().spreadLight(this);
+            this.addBurnTicks(-1);
+        }
+    }
+
+    public int getRemainingBurnTicks() {
+        return this.getDataManager().get(DATA_BURN_TICKS);
+    }
+
+    public EntityBoatLantern setBurnTicks(int ticks) {
+        ticks = ticks < 0 ? 0 : ticks;
+        this.getDataManager().set(DATA_BURN_TICKS, ticks);
+        return this;
+    }
+
+    public EntityBoatLantern addBurnTicks(int ticks) {
+        return this.setBurnTicks(this.getRemainingBurnTicks() + ticks);
+    }
+
+    public boolean isLit() {
+        return getRemainingBurnTicks() > 0;
+    }
+
+    @Override
+    public boolean processInitialInteract(EntityPlayer player, @Nullable ItemStack stack, EnumHand hand) {
+        if(player.isSneaking()) {
+            if(!this.worldObj.isRemote) {
+                player.displayGUIChest(this);
+            }
+            return true;
+        } else {
+            return super.processInitialInteract(player, stack, hand);
+        }
     }
 
     /**
@@ -79,17 +131,99 @@ public class EntityBoatLantern extends EntityBoat {
 
     public void dropItems() {
         this.dropItemWithOffset(this.getItemBoat(), 1, 0.0F);
-        this.entityDropItem(new ItemStack(Blocks.CHEST, 1), 0.0F);
+        this.entityDropItem(new ItemStack(BlockRegistry.getInstance().blockLantern, 1), 0.0F);
     }
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound tag) {
         super.writeEntityToNBT(tag);
+        this.writeInventoryToNBT(tag);
+        this.setBurnTicks(tag.getInteger(Names.NBT.BURN_TICKS));
     }
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound tag) {
         super.readEntityFromNBT(tag);
+        this.readInventoryFromNBT(tag);
+        tag.setInteger(Names.NBT.BURN_TICKS, this.getRemainingBurnTicks());
+    }
+
+    @Override
+    public int getSizeInventory() {
+        return 1;
+    }
+
+    @Nullable
+    @Override
+    public ItemStack getStackInSlot(int index) {
+        return fuelStack;
+    }
+
+    @Nullable
+    @Override
+    public ItemStack decrStackSize(int index, int count) {
+        count = Math.min(count, this.fuelStack.stackSize);
+        ItemStack stack = this.fuelStack.copy();
+        stack.stackSize = count;
+        if(this.fuelStack.stackSize <= count) {
+            this.setInventorySlotContents(index, null);
+        }
+        return stack;
+    }
+
+    @Nullable
+    @Override
+    public ItemStack removeStackFromSlot(int index) {
+        ItemStack stack = this.fuelStack.copy();
+        this.setInventorySlotContents(index, null);
+        return stack;
+    }
+
+    @Override
+    public void setInventorySlotContents(int index, @Nullable ItemStack stack) {
+        this.fuelStack = stack;
+    }
+
+    @Override
+    public int getInventoryStackLimit() {
+        return 64;
+    }
+
+    @Override
+    public void markDirty() {}
+
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer player) {
+        return true;
+    }
+
+    @Override
+    public void openInventory(EntityPlayer player) {}
+
+    @Override
+    public void closeInventory(EntityPlayer player) {}
+
+    @Override
+    public boolean isItemValidForSlot(int index, ItemStack stack) {
+        return true;
+    }
+
+    @Override
+    public int getField(int id) {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value) {}
+
+    @Override
+    public int getFieldCount() {
+        return 0;
+    }
+
+    @Override
+    public void clear() {
+        this.fuelStack = null;
     }
 
     public static class RenderFactory implements IRenderFactory<EntityBoatLantern> {
