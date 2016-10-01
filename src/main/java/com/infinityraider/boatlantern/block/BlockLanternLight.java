@@ -7,11 +7,12 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.world.World;
 
+import java.util.Collections;
 import java.util.List;
 
 public class BlockLanternLight extends BlockBaseTile {
     public BlockLanternLight() {
-        super("lantern", Material.CIRCUITS);
+        super("light", Material.AIR);
     }
 
     @Override
@@ -21,7 +22,7 @@ public class BlockLanternLight extends BlockBaseTile {
 
     @Override
     public List<String> getOreTags() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override
