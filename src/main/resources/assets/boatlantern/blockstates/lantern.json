@@ -1,7 +1,12 @@
 {
   "variants": {
-    "normal": [
-      { "model": "boatlantern:lantern" }
-    ]
+    "facing_x=false,hanging=false,lit=false": [{ "model": "boatlantern:lantern" }],
+    "facing_x=false,hanging=false,lit=true": [{ "model": "boatlantern:lantern" }],
+    "facing_x=false,hanging=true,lit=false": [{ "model": "boatlantern:lantern" }],
+    "facing_x=false,hanging=true,lit=true": [{ "model": "boatlantern:lantern" }],
+    "facing_x=true,hanging=false,lit=false": [{ "model": "boatlantern:lantern" }],
+    "facing_x=true,hanging=false,lit=true": [{ "model": "boatlantern:lantern" }],
+    "facing_x=true,hanging=true,lit=false": [{ "model": "boatlantern:lantern" }],
+    "facing_x=true,hanging=true,lit=true": [{ "model": "boatlantern:lantern" }]
   }
 }
