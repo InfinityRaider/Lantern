@@ -12,9 +12,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Collections;
-import java.util.List;
-
 public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     public static final InfinityProperty[] PROPERTIES = new InfinityProperty[] {
             Properties.LIT,
@@ -29,11 +26,6 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     @Override
     public TileEntityLantern createNewTileEntity(World worldIn, int meta) {
         return new TileEntityLantern();
-    }
-
-    @Override
-    public List<String> getOreTags() {
-        return Collections.emptyList();
     }
 
     @Override

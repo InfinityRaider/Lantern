@@ -2,15 +2,14 @@ package com.infinityraider.boatlantern.block;
 
 import com.infinityraider.boatlantern.block.tile.TileEntityLanternLight;
 import com.infinityraider.infinitylib.block.BlockBaseTile;
+import com.infinityraider.infinitylib.block.ICustomRenderedBlock;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
+import com.infinityraider.infinitylib.render.block.IBlockRenderingHandler;
+import com.infinityraider.infinitylib.render.block.RenderBlockEmpty;
 import net.minecraft.block.material.Material;
-import net.minecraft.item.ItemBlock;
 import net.minecraft.world.World;
 
-import java.util.Collections;
-import java.util.List;
-
-public class BlockLanternLight extends BlockBaseTile {
+public class BlockLanternLight extends BlockBaseTile implements ICustomRenderedBlock {
     public BlockLanternLight() {
         super("light", Material.AIR);
     }
@@ -21,17 +20,12 @@ public class BlockLanternLight extends BlockBaseTile {
     }
 
     @Override
-    public List<String> getOreTags() {
-        return Collections.emptyList();
-    }
-
-    @Override
     protected InfinityProperty[] getPropertyArray() {
         return new InfinityProperty[0];
     }
 
     @Override
-    public Class<? extends ItemBlock> getItemBlockClass() {
-        return null;
+    public IBlockRenderingHandler getRenderer() {
+        return RenderBlockEmpty.createEmptyRender(this);
     }
 }
