@@ -1,0 +1,22 @@
+[
+	{
+		"modid": "boatlantern",
+		"name": "Boat Lantern",
+
+		"version": "0.1",
+		"mcversion": "1.10.2",
+
+		"logoFile": "",
+		"screenshots": [],
+
+		"parent":"",
+		"dependencies": [],
+
+		"authorList": [ "InfinityRaider"; "Wiresegal" ],
+		"credits": "",
+
+		"url": "https://www.github.com/InfinityRaider/BoatLantern",
+
+		"description": "Your guiding light at sea"
+	}
+]
