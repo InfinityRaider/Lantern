@@ -140,7 +140,7 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
     }
 
     /**
-     * Overridden to drop all the items in the inventory too
+     * Overridden to drop the lantern too
      */
     @Override
     public boolean attackEntityFrom(DamageSource source, float amount) {
@@ -170,7 +170,12 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
 
     public void dropItems() {
         this.dropItemWithOffset(this.getItemBoat(), 1, 0.0F);
-        this.entityDropItem(new ItemStack(BlockRegistry.getInstance().blockLantern, 1), 0.0F);
+        ItemStack stack = new ItemStack(BlockRegistry.getInstance().blockLantern, 1, 0);
+        ItemHandlerLantern lantern = LanternItemCache.getInstance().getLantern(stack);
+        if(lantern != null) {
+            lantern.copyFrom(this);
+        }
+        this.entityDropItem(stack, 0.0F);
     }
 
     @Override
