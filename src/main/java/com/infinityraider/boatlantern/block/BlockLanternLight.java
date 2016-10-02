@@ -1,7 +1,7 @@
 package com.infinityraider.boatlantern.block;
 
-import com.infinityraider.boatlantern.block.tile.TileEntityLanternLight;
-import com.infinityraider.infinitylib.block.BlockBaseTile;
+import com.infinityraider.boatlantern.handler.ConfigurationHandler;
+import com.infinityraider.infinitylib.block.BlockBase;
 import com.infinityraider.infinitylib.block.ICustomRenderedBlock;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
 import com.infinityraider.infinitylib.render.block.IBlockRenderingHandler;
@@ -18,12 +18,17 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 
-public class BlockLanternLight extends BlockBaseTile implements ICustomRenderedBlock {
+public class BlockLanternLight extends BlockBase implements ICustomRenderedBlock {
     public static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(0.5, 0.5, 0.5, 0.5, 0.5, 0.5);
 
     public BlockLanternLight() {
         super("light", Material.AIR);
-        this.setLightLevel(1);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public int getLightValue(IBlockState state) {
+        return ConfigurationHandler.getInstance().lanternLightLevel;
     }
 
     @Override
@@ -63,11 +68,6 @@ public class BlockLanternLight extends BlockBaseTile implements ICustomRenderedB
     @SideOnly(Side.CLIENT)
     public BlockRenderLayer getBlockLayer() {
         return BlockRenderLayer.CUTOUT;
-    }
-
-    @Override
-    public TileEntityLanternLight createNewTileEntity(World worldIn, int meta) {
-        return new TileEntityLanternLight();
     }
 
     @Override

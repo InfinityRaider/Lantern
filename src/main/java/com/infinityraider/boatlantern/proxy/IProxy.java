@@ -1,20 +1,31 @@
 package com.infinityraider.boatlantern.proxy;
 
+import com.infinityraider.boatlantern.BoatLantern;
 import com.infinityraider.boatlantern.handler.ConfigurationHandler;
+import com.infinityraider.boatlantern.handler.GuiHandler;
+import com.infinityraider.boatlantern.handler.LightingHandler;
+import com.infinityraider.boatlantern.lantern.LanternItemCache;
 import com.infinityraider.infinitylib.proxy.base.IProxyBase;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 public interface IProxy extends IProxyBase {
+    @Override
+    default void initStart(FMLInitializationEvent event) {
+        NetworkRegistry.INSTANCE.registerGuiHandler(BoatLantern.instance, GuiHandler.getInstance());
+    }
+
     @Override
     default void initConfiguration(FMLPreInitializationEvent event) {
         ConfigurationHandler.getInstance().init(event);
     }
 
     @Override
-    default void activateRequiredModules() {
-
-    }
+    default void activateRequiredModules() {}
 
     @Override
-    default void registerEventHandlers() {}
+    default void registerEventHandlers() {
+        this.registerEventHandler(LightingHandler.getInstance());
+        this.registerEventHandler(LanternItemCache.getInstance());
+    }
 }

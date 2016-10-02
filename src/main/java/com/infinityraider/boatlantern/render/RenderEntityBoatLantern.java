@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityBoat;
-import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -22,8 +21,6 @@ public class RenderEntityBoatLantern extends Render<EntityBoatLantern> {
             new ResourceLocation("textures/entity/boat/boat_jungle.png"),
             new ResourceLocation("textures/entity/boat/boat_acacia.png"),
             new ResourceLocation("textures/entity/boat/boat_darkoak.png")};
-
-    private static final TileEntityChest DUMMY_CHEST = new TileEntityChest();
 
     protected final ModelBoat model;
 
@@ -89,5 +86,14 @@ public class RenderEntityBoatLantern extends Render<EntityBoatLantern> {
     public boolean isMultipass()
     {
         return true;
+    }
+
+    public void renderMultipass(EntityBoatLantern boat, double x, double y, double z, float entityYaw, float partialTicks) {
+        GlStateManager.pushMatrix();
+        this.setupTranslation(x, y, z);
+        this.setupRotation(boat, entityYaw, partialTicks);
+        this.bindEntityTexture(boat);
+        this.model.renderMultipass(boat, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
+        GlStateManager.popMatrix();
     }
 }

@@ -4,7 +4,7 @@
 "textures": {
     "particle": "#bronze",
     "bronze": "boatlantern:blocks/bronze",
-    "lanternglass": "boatlantern:blocks/lanternglass",
+    "lanternglass": "boatlantern:blocks/lanternglass_lit",
     "white": "boatlantern:blocks/white"
 },
 "elements": [ 
