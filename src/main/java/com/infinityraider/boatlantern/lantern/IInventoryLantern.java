@@ -4,13 +4,15 @@ import com.infinityraider.infinitylib.reference.Reference;
 import com.infinityraider.infinitylib.utility.inventory.IInventorySerializableItemHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentTranslation;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import javax.annotation.Nullable;
 
 public interface IInventoryLantern extends IInventorySerializableItemHandler {
+    ILantern getLantern();
+
     @Override
     default int getSizeInventory() {
         return 1;
@@ -84,7 +86,7 @@ public interface IInventoryLantern extends IInventorySerializableItemHandler {
         if(fuelStack != null) {
             return ItemStack.areItemsEqual(fuelStack, stack) && ItemStack.areItemStackTagsEqual(fuelStack, stack);
         } else {
-            return GameRegistry.getFuelValue(stack) > 0;
+            return TileEntityFurnace.getItemBurnTime(stack) > 0;
         }
     }
 

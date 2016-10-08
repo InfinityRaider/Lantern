@@ -86,6 +86,11 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
     }
 
     @Override
+    public ILantern getLantern() {
+        return this;
+    }
+
+    @Override
     public ItemStack getFuelStack() {
         return this.fuelStack;
     }

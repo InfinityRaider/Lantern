@@ -1,5 +1,9 @@
 package com.infinityraider.boatlantern.lantern;
 
+import com.infinityraider.boatlantern.handler.ConfigurationHandler;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityFurnace;
+
 public interface ILantern {
     IInventoryLantern getInventory();
 
@@ -8,6 +12,17 @@ public interface ILantern {
     boolean isLit();
 
     int getRemainingBurnTicks();
+
+    default boolean consumeFuel() {
+        ItemStack stack = this.getInventory().getFuelStack();
+        if(stack == null) {
+            return false;
+        } else {
+            this.addBurnTicks(TileEntityFurnace.getItemBurnTime(stack) * ConfigurationHandler.getInstance().burnTimeMultiplier);
+            this.getInventory().decrStackSize(0, 1);
+            return true;
+        }
+    }
 
     ILantern addBurnTicks(int ticks);
 

@@ -20,17 +20,9 @@ public class TileEntityLantern extends TileEntityBase implements ILantern, IInve
     private ItemStack fuelStack;
     private int burnTicksRemaining;
 
-    private IBlockState state;
-
-    public IBlockState getState() {
-        if(this.state == null) {
-            this.state = this.getWorld().getBlockState(this.getPos());
-        }
-        return this.state;
-    }
-
-    public void resetState() {
-        this.state = null;
+    @Override
+    public ILantern getLantern() {
+        return this;
     }
 
     @Override
@@ -78,17 +70,16 @@ public class TileEntityLantern extends TileEntityBase implements ILantern, IInve
 
     @Override
     public void setLit(boolean status) {
-        IBlockState state = this.getState();
         boolean lit = this.isLit();
         if(lit != status) {
-            IBlockState updated = BlockLantern.Properties.LIT.applyToBlockState(state, status);
+            IBlockState updated = BlockLantern.Properties.LIT.applyToBlockState(this.getState(), status);
             this.worldObj.setBlockState(this.getPos(), updated);
         }
     }
 
     @Override
     public boolean isLit() {
-        return BlockLantern.Properties.LIT.getValue(getState());
+        return BlockLantern.Properties.LIT.getValue(this.getState());
     }
 
     @Override

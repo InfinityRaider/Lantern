@@ -78,6 +78,11 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
     }
 
     @Override
+    public ILantern getLantern() {
+        return this;
+    }
+
+    @Override
     public ItemStack getFuelStack() {
         return fuelStack;
     }

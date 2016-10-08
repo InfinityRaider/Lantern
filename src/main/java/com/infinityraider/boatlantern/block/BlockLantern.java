@@ -3,11 +3,14 @@ package com.infinityraider.boatlantern.block;
 import com.google.common.collect.ImmutableList;
 import com.infinityraider.boatlantern.block.tile.TileEntityLantern;
 import com.infinityraider.boatlantern.handler.GuiHandler;
+import com.infinityraider.boatlantern.handler.LightingHandler;
+import com.infinityraider.boatlantern.lantern.ILantern;
 import com.infinityraider.boatlantern.lantern.ItemHandlerLantern;
 import com.infinityraider.boatlantern.handler.ConfigurationHandler;
 import com.infinityraider.boatlantern.lantern.LanternItemCache;
 import com.infinityraider.infinitylib.block.BlockBaseTile;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
+import com.infinityraider.infinitylib.reference.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -22,9 +25,8 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
+import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
@@ -40,6 +42,7 @@ import java.util.List;
 import java.util.Random;
 
 public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
+    public static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(Constants.UNIT * 5, 0, Constants.UNIT * 5, Constants.UNIT * 11, Constants.UNIT * 11, Constants.UNIT * 11);
     public static final InfinityProperty[] PROPERTIES = new InfinityProperty[] {
             Properties.LIT,
             Properties.FACING_X,
@@ -48,6 +51,7 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
 
     public BlockLantern() {
         super("lantern", Material.CIRCUITS);
+        this.setCreativeTab(CreativeTabs.MISC);
     }
 
     @Override
@@ -80,7 +84,7 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
                     GuiHandler.getInstance().openGui(player, lantern);
                 } else {
                     boolean lit = Properties.LIT.getValue(state);
-                    if(lit || lantern.getRemainingBurnTicks() > 0) {
+                    if(lit || lantern.getRemainingBurnTicks() > 0 || lantern.consumeFuel()) {
                         world.setBlockState(pos, Properties.LIT.applyToBlockState(state, !lit));
                     }
                 }
@@ -111,15 +115,6 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
             return ImmutableList.of(stack);
         }
         return Collections.emptyList();
-    }
-
-    @Override
-    @SuppressWarnings("deprecation")
-    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block block) {
-        TileEntity te = world.getTileEntity(pos);
-        if(te instanceof TileEntityLantern) {
-            ((TileEntityLantern) te).resetState();
-        }
     }
 
     @Override
@@ -180,15 +175,47 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
         return false;
     }
 
+    @Override
+    @SuppressWarnings("deprecation")
+    @Deprecated
+    public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+        return BOUNDING_BOX;
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    @Deprecated
+    @Nullable
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
+        return BOUNDING_BOX;
+    }
+
     public static class BlockItem extends ItemBlock {
         public BlockItem(Block lantern) {
             super(lantern);
             this.setMaxStackSize(1);
-            this.setCreativeTab(CreativeTabs.MISC);
         }
 
         public ItemHandlerLantern getLantern(Entity entity, ItemStack stack) {
             return LanternItemCache.getInstance().getLantern(entity, stack);
+        }
+
+        @Override
+        public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand) {
+            if(!world.isRemote) {
+                if(player.isSneaking()) {
+                    GuiHandler.getInstance().openGui(player, stack);
+                } else {
+                    ILantern lantern = this.getLantern(player, stack);
+                    if(lantern != null) {
+                        boolean lit = lantern.isLit();
+                        if(lit || lantern.getRemainingBurnTicks() > 0 || lantern.consumeFuel()) {
+                            lantern.setLit(!lit);
+                        }
+                    }
+                }
+            }
+            return new ActionResult<>(EnumActionResult.PASS, stack);
         }
 
         @Override
@@ -198,6 +225,8 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
                 if(lantern != null) {
                     lantern.updateTick();
                 }
+            } else {
+                LightingHandler.getInstance().removeLastLight(entity);
             }
         }
 
