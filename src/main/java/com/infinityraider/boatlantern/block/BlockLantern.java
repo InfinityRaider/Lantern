@@ -12,6 +12,7 @@ import com.infinityraider.boatlantern.lantern.LanternItemCache;
 import com.infinityraider.boatlantern.reference.Reference;
 import com.infinityraider.infinitylib.block.BlockBaseTile;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
+import com.infinityraider.infinitylib.item.IItemWithRecipe;
 import com.infinityraider.infinitylib.reference.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
@@ -23,9 +24,11 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
@@ -39,13 +42,14 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.oredict.ShapedOreRecipe;
 
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
+public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IItemWithRecipe {
     public static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(Constants.UNIT * 5, 0, Constants.UNIT * 5, Constants.UNIT * 11, Constants.UNIT * 11, Constants.UNIT * 11);
     public static final InfinityProperty[] PROPERTIES = new InfinityProperty[] {
             Properties.LIT,
@@ -192,6 +196,11 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     @Nullable
     public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos) {
         return BOUNDING_BOX;
+    }
+
+    @Override
+    public List<IRecipe> getRecipes() {
+        return ImmutableList.of(new ShapedOreRecipe(this, " s ", "sbs", " p ", 's', "stickWood", 'b', Items.GLASS_BOTTLE, 'p', "slabWood"));
     }
 
     public static class BlockItem extends ItemBlock {
