@@ -29,6 +29,10 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
         return this;
     }
 
+    public Entity getEntity() {
+        return this.entity;
+    }
+
     public void updateTick() {
         this.logic.burnUpdate();
     }
@@ -108,8 +112,8 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
     public void setLit(boolean status) {
         boolean lit = this.isLit();
         if(lit != status) {
-            if(!lit && this.entity != null) {
-                LightingHandler.getInstance().removeLastLight(this.entity);
+            if(!lit && this.getEntity() != null) {
+                LightingHandler.getInstance().removeLastLight(this.getEntity());
             }
             this.lit = status;
             this.markDirty();
@@ -141,7 +145,7 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
     @Override
     public void spreadLight() {
         if(this.entity != null) {
-            LightingHandler.getInstance().spreadLight(this.entity);
+            LightingHandler.getInstance().spreadLight(this.getEntity());
         }
     }
 }

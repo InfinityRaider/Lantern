@@ -14,6 +14,9 @@ public interface ILantern {
     int getRemainingBurnTicks();
 
     default boolean consumeFuel() {
+        if(!ConfigurationHandler.getInstance().consumesFuelWhenNotHeld) {
+            return true;
+        }
         ItemStack stack = this.getInventory().getFuelStack();
         if(stack == null) {
             return false;

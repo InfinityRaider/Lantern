@@ -2,12 +2,14 @@ package com.infinityraider.boatlantern.block;
 
 import com.google.common.collect.ImmutableList;
 import com.infinityraider.boatlantern.block.tile.TileEntityLantern;
+import com.infinityraider.boatlantern.entity.EntityBoatLantern;
 import com.infinityraider.boatlantern.handler.GuiHandler;
 import com.infinityraider.boatlantern.handler.LightingHandler;
 import com.infinityraider.boatlantern.lantern.ILantern;
 import com.infinityraider.boatlantern.lantern.ItemHandlerLantern;
 import com.infinityraider.boatlantern.handler.ConfigurationHandler;
 import com.infinityraider.boatlantern.lantern.LanternItemCache;
+import com.infinityraider.boatlantern.reference.Reference;
 import com.infinityraider.infinitylib.block.BlockBaseTile;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
 import com.infinityraider.infinitylib.reference.Constants;
@@ -18,6 +20,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -28,6 +31,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -57,10 +61,10 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     @Override
     public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         IBlockState state = this.getDefaultState();
-        Properties.HANGING.applyToBlockState(state, hitY > 0.5);
-        Properties.FACING_X.applyToBlockState(state, placer.getHorizontalFacing().getAxis() == EnumFacing.Axis.X);
         ItemHandlerLantern lantern = LanternItemCache.getInstance().getLantern(placer, placer.getHeldItemMainhand());
-        Properties.LIT.applyToBlockState(state, lantern != null && lantern.isLit());
+        state = Properties.HANGING.applyToBlockState(state, facing == EnumFacing.DOWN);
+        state = Properties.FACING_X.applyToBlockState(state, placer.getHorizontalFacing().getAxis() == EnumFacing.Axis.X);
+        state = Properties.LIT.applyToBlockState(state, lantern != null && lantern.isLit());
         return state;
     }
 
@@ -218,6 +222,21 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
             return new ActionResult<>(EnumActionResult.PASS, stack);
         }
 
+        public void createLanternBoat(EntityPlayer player, ItemStack stack, EntityBoat boat) {
+            if(!player.getEntityWorld().isRemote) {
+                EntityBoatLantern boatLantern = new EntityBoatLantern(boat, stack);
+                ItemHandlerLantern lantern = this.getLantern(player, stack);
+                if (lantern != null) {
+                    boatLantern.copyFrom(lantern);
+                }
+                boat.setDead();
+                player.getEntityWorld().spawnEntityInWorld(boatLantern);
+                if(!player.capabilities.isCreativeMode) {
+                    player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+                }
+            }
+        }
+
         @Override
         public void onUpdate(ItemStack stack, World worldIn, Entity entity, int itemSlot, boolean isSelected) {
             if(shouldLightTheWorld(stack, entity, itemSlot, isSelected)) {
@@ -267,6 +286,16 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
                 }
             }
             return false;
+        }
+
+        @Override
+        @SideOnly(Side.CLIENT)
+        @SuppressWarnings("deprecation")
+        public void addInformation(ItemStack stack, EntityPlayer playerIn, List<String> tooltip, boolean advanced) {
+            tooltip.add(I18n.translateToLocal(Reference.MOD_ID.toLowerCase() + ".tooltip.place_lantern"));
+            tooltip.add(I18n.translateToLocal(Reference.MOD_ID.toLowerCase() + ".tooltip.open_gui"));
+            tooltip.add(I18n.translateToLocal(Reference.MOD_ID.toLowerCase() + ".tooltip.toggle_lantern"));
+            tooltip.add(I18n.translateToLocal(Reference.MOD_ID.toLowerCase() + ".tooltip.create_lantern_boat"));
         }
 
         @Override

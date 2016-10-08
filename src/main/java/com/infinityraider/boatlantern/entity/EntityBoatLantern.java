@@ -130,13 +130,16 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
 
     @Override
     public boolean processInitialInteract(EntityPlayer player, @Nullable ItemStack stack, EnumHand hand) {
-        if(player.isSneaking()) {
-            if(!this.worldObj.isRemote) {
+        if (player.isSneaking()) {
+            if (!this.worldObj.isRemote) {
                 GuiHandler.getInstance().openGui(player, this);
             }
         } else {
-            if(player.isRidingOrBeingRiddenBy(this)) {
-                this.setLit(!this.isLit());
+            if (player.isRidingOrBeingRiddenBy(this)) {
+                boolean lit = this.isLit();
+                if (lit || this.getRemainingBurnTicks() > 0 || this.consumeFuel()) {
+                    this.setLit(!lit);
+                }
             } else {
                 return super.processInitialInteract(player, stack, hand);
             }

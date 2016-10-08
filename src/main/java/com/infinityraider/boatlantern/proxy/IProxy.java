@@ -1,9 +1,7 @@
 package com.infinityraider.boatlantern.proxy;
 
 import com.infinityraider.boatlantern.BoatLantern;
-import com.infinityraider.boatlantern.handler.ConfigurationHandler;
-import com.infinityraider.boatlantern.handler.GuiHandler;
-import com.infinityraider.boatlantern.handler.LightingHandler;
+import com.infinityraider.boatlantern.handler.*;
 import com.infinityraider.boatlantern.lantern.LanternItemCache;
 import com.infinityraider.infinitylib.proxy.base.IProxyBase;
 import net.minecraftforge.fml.common.event.*;
@@ -25,6 +23,7 @@ public interface IProxy extends IProxyBase {
 
     @Override
     default void registerEventHandlers() {
+        this.registerEventHandler(InteractionHandler.getInstance());
         this.registerEventHandler(LightingHandler.getInstance());
         this.registerEventHandler(LanternItemCache.getInstance());
     }

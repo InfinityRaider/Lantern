@@ -1,8 +1,14 @@
 package com.infinityraider.boatlantern.render;
 
+import com.infinityraider.boatlantern.block.BlockLantern;
 import com.infinityraider.boatlantern.entity.EntityBoatLantern;
+import com.infinityraider.boatlantern.registry.BlockRegistry;
+import com.infinityraider.infinitylib.render.RenderUtilBase;
+import com.infinityraider.infinitylib.render.tessellation.TessellatorVertexBuffer;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.model.ModelBoat;
 import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityBoat;
@@ -43,7 +49,7 @@ public class RenderEntityBoatLantern extends Render<EntityBoatLantern> {
         }
 
         this.model.render(entity, partialTicks, 0.0F, -0.1F, 0.0F, 0.0F, 0.0625F);
-        this.renderLantern(entity, partialTicks);
+        this.renderLantern(entity);
 
         if (this.renderOutlines) {
             GlStateManager.disableOutlineMode();
@@ -54,8 +60,21 @@ public class RenderEntityBoatLantern extends Render<EntityBoatLantern> {
         super.doRender(entity, x, y, z, entityYaw, partialTicks);
     }
 
-    public void renderLantern(EntityBoatLantern entity, float partialTicks) {
+    public void renderLantern(EntityBoatLantern entity) {
+        IBlockState state = BlockLantern.Properties.LIT.applyToBlockState(BlockRegistry.getInstance().blockLantern.getDefaultState(), entity.isLit());
 
+        GlStateManager.pushMatrix();
+        GlStateManager.pushAttrib();
+
+        GlStateManager.translate(-1.0, 0.125, 0.5);
+        GlStateManager.rotate(180, 1, 0, 0);
+
+        GlStateManager.enableAlpha();
+
+        RenderUtilBase.drawBlockModel(TessellatorVertexBuffer.getInstance(Tessellator.getInstance()), state);
+
+        GlStateManager.popAttrib();
+        GlStateManager.popMatrix();
     }
 
     public void setupRotation(EntityBoat boat, float entityYaw, float partialTicks) {
