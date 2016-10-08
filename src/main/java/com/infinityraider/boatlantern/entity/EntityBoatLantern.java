@@ -5,7 +5,7 @@ import com.infinityraider.boatlantern.lantern.*;
 import com.infinityraider.boatlantern.handler.LightingHandler;
 import com.infinityraider.boatlantern.reference.Names;
 import com.infinityraider.boatlantern.registry.BlockRegistry;
-import com.infinityraider.boatlantern.render.RenderEntityBoatLantern;
+import com.infinityraider.boatlantern.render.entity.RenderEntityBoatLantern;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.item.EntityBoat;

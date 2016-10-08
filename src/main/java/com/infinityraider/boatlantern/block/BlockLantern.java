@@ -10,10 +10,13 @@ import com.infinityraider.boatlantern.lantern.ItemHandlerLantern;
 import com.infinityraider.boatlantern.handler.ConfigurationHandler;
 import com.infinityraider.boatlantern.lantern.LanternItemCache;
 import com.infinityraider.boatlantern.reference.Reference;
+import com.infinityraider.boatlantern.render.block.RenderBlockLantern;
 import com.infinityraider.infinitylib.block.BlockBaseTile;
+import com.infinityraider.infinitylib.block.ICustomRenderedBlock;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
 import com.infinityraider.infinitylib.item.IItemWithRecipe;
 import com.infinityraider.infinitylib.reference.Constants;
+import com.infinityraider.infinitylib.render.block.IBlockRenderingHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -49,13 +52,18 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IItemWithRecipe {
+public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements ICustomRenderedBlock, IItemWithRecipe {
     public static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(Constants.UNIT * 5, 0, Constants.UNIT * 5, Constants.UNIT * 11, Constants.UNIT * 11, Constants.UNIT * 11);
+
     public static final InfinityProperty[] PROPERTIES = new InfinityProperty[] {
             Properties.LIT,
             Properties.FACING_X,
             Properties.HANGING
     };
+
+    @SideOnly(Side.CLIENT)
+    private RenderBlockLantern renderer;
+
 
     public BlockLantern() {
         super("lantern", Material.CIRCUITS);
@@ -201,6 +209,15 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements II
     @Override
     public List<IRecipe> getRecipes() {
         return ImmutableList.of(new ShapedOreRecipe(this, " s ", "sbs", " p ", 's', "stickWood", 'b', Items.GLASS_BOTTLE, 'p', "slabWood"));
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public RenderBlockLantern getRenderer() {
+        if(this.renderer == null) {
+            this.renderer = new RenderBlockLantern(this);
+        }
+        return this.renderer;
     }
 
     public static class BlockItem extends ItemBlock {
