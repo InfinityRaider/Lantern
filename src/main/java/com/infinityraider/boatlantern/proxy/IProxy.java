@@ -22,6 +22,9 @@ public interface IProxy extends IProxyBase {
     default void activateRequiredModules() {}
 
     @Override
+    default void registerCapabilities() {}
+
+    @Override
     default void registerEventHandlers() {
         this.registerEventHandler(InteractionHandler.getInstance());
         this.registerEventHandler(LightingHandler.getInstance());

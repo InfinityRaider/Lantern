@@ -1,6 +1,6 @@
 package com.infinityraider.boatlantern.handler;
 
-import com.infinityraider.infinitylib.utility.LogHelper;
+import com.infinityraider.boatlantern.BoatLantern;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
@@ -28,7 +28,7 @@ public class ConfigurationHandler {
         if (config.hasChanged()) {
             config.save();
         }
-        LogHelper.debug("Configuration Loaded");
+        BoatLantern.instance.getLogger().debug("Configuration Loaded");
     }
 
     private void loadConfiguration() {
