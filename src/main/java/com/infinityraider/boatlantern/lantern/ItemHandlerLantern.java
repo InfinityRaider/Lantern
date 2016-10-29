@@ -112,10 +112,10 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
     public void setLit(boolean status) {
         boolean lit = this.isLit();
         if(lit != status) {
-            if(!lit && this.getEntity() != null) {
+            this.lit = status;
+            if(!status && this.getEntity() != null) {
                 LightingHandler.getInstance().removeLastLight(this.getEntity());
             }
-            this.lit = status;
             this.markDirty();
         }
     }

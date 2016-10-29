@@ -36,7 +36,7 @@ public class InteractionHandler {
             }
             ItemStack stack = player.inventory.getStackInSlot(player.inventory.currentItem);
             if(stack != null && stack.getItem() instanceof BlockLantern.BlockItem) {
-                ((BlockLantern.BlockItem) stack.getItem()).createLanternBoat(player, stack, boat);
+                ((BlockLantern.BlockItem) stack.getItem()).mountLanternOnBoat(player, stack, boat);
             }
         }
     }

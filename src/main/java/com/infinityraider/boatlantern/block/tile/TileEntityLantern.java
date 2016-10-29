@@ -102,6 +102,8 @@ public class TileEntityLantern extends TileEntityBase implements ILantern, IInve
 
     @Override
     public void update() {
-        this.lanternLogic.burnUpdate();
+        if(!this.getWorld().isRemote) {
+            this.lanternLogic.burnUpdate();
+        }
     }
 }

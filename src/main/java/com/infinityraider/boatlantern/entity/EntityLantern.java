@@ -1,13 +1,15 @@
 package com.infinityraider.boatlantern.entity;
 
 import com.infinityraider.boatlantern.handler.GuiHandler;
-import com.infinityraider.boatlantern.lantern.*;
 import com.infinityraider.boatlantern.handler.LightingHandler;
+import com.infinityraider.boatlantern.lantern.*;
 import com.infinityraider.boatlantern.reference.Names;
 import com.infinityraider.boatlantern.registry.BlockRegistry;
-import com.infinityraider.boatlantern.render.entity.RenderEntityBoatLantern;
+import com.infinityraider.boatlantern.render.entity.RenderEntityLantern;
+import com.infinityraider.infinitylib.reference.Constants;
 import net.minecraft.client.renderer.entity.Render;
 import net.minecraft.client.renderer.entity.RenderManager;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityBoat;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -15,7 +17,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.datasync.DataParameter;
 import net.minecraft.network.datasync.DataSerializers;
 import net.minecraft.network.datasync.EntityDataManager;
-import net.minecraft.util.*;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
@@ -25,43 +29,25 @@ import net.minecraftforge.items.CapabilityItemHandler;
 
 import javax.annotation.Nullable;
 
-public class EntityBoatLantern extends EntityBoat implements ILantern, IInventoryLantern {
-    public static final DataParameter<Boolean> DATA_LIT = EntityDataManager.createKey(EntityBoatLantern.class, DataSerializers.BOOLEAN);
-    public static final DataParameter<Integer> DATA_BURN_TICKS = EntityDataManager.createKey(EntityBoatLantern.class, DataSerializers.VARINT);
+public class EntityLantern extends Entity implements ILantern, IInventoryLantern {
+    public static final DataParameter<Boolean> DATA_LIT = EntityDataManager.createKey(EntityLantern.class, DataSerializers.BOOLEAN);
+    public static final DataParameter<Integer> DATA_BURN_TICKS = EntityDataManager.createKey(EntityLantern.class, DataSerializers.VARINT);
 
     private final LanternLogic lanternLogic = new LanternLogic(this);
     private ItemStack fuelStack;
 
-    /** Constructor which is used to instantiate the entity client side or server side after a world reload using reflection */
-    @SuppressWarnings("unused")
-    public EntityBoatLantern(World world) {
+    public EntityLantern(World world) {
         super(world);
+        this.setSize(6 * Constants.UNIT, 11 * Constants.UNIT);
     }
 
-    public EntityBoatLantern(World world, double x, double y, double z) {
-        super(world, x, y, z);
-    }
-
-    public EntityBoatLantern(EntityBoat boat, ItemStack stack) {
-        this(boat.getEntityWorld(), boat.prevPosX, boat.prevPosY, boat.prevPosZ);
-        this.posX = boat.posX;
-        this.posY = boat.posY;
-        this.posZ = boat.posZ;
-        this.motionX = boat.motionX;
-        this.motionY = boat.motionY;
-        this.motionZ = boat.motionZ;
-        this.rotationPitch = boat.rotationPitch;
-        this.rotationYaw = boat.rotationYaw;
-        this.setBoatType(boat.getBoatType());
-        ItemHandlerLantern lantern = LanternItemCache.getInstance().getLantern(stack);
-        if(lantern != null) {
-            this.copyFrom(lantern);
-        }
+    public EntityLantern(Entity source) {
+        this(source.getEntityWorld());
+        this.copyLocationAndAnglesFrom(source);
     }
 
     @Override
     protected void entityInit() {
-        super.entityInit();
         this.getDataManager().register(DATA_LIT, false);
         this.getDataManager().register(DATA_BURN_TICKS, 0);
     }
@@ -104,7 +90,59 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
     @Override
     public void onUpdate() {
         super.onUpdate();
-        this.lanternLogic.burnUpdate();
+        if(!this.getEntityWorld().isRemote) {
+            this.lanternLogic.burnUpdate();
+        }
+        if(this.getRidingEntity() == null) {
+            this.dropItems();
+            this.setDead();
+        }
+    }
+
+    @Override
+    public void updateRidden() {
+        Entity entity = this.getRidingEntity();
+        if(entity == null) {
+            this.dismountRidingEntity();
+            return;
+        }
+        if (this.isRiding() && entity.isDead) {
+            this.dismountRidingEntity();
+        } else {
+            this.motionX = 0.0D;
+            this.motionY = 0.0D;
+            this.motionZ = 0.0D;
+            this.onUpdate();
+            double dx = -0.145;
+            double dy = 0.25;
+            double dz = -0.6;
+            double yaw = entity.rotationYaw;
+            double cosY = Math.cos(Math.toRadians(yaw));
+            double sinY = Math.sin(Math.toRadians(yaw));
+            double newX = entity.posX + dx * cosY - dz * sinY;
+            double newY = entity.posY + dy;
+            double newZ = entity.posZ + dx * sinY + dz * cosY;
+            this.prevPosX = this.posX;
+            this.prevPosY = this.posY;
+            this.prevPosZ = this.posZ;
+            this.setPosition(newX, newY, newZ);
+            this.prevRotationYaw = this.rotationYaw;
+            this.rotationYaw = entity.rotationYaw;
+        }
+    }
+
+    @Override
+    public void dismountRidingEntity() {
+        Entity riding = this.getRidingEntity();
+        if (riding != null) {
+            super.dismountRidingEntity();
+            if(riding.isEntityAlive()) {
+                this.startRiding(riding);
+            }
+        } else {
+            this.dropItems();
+            this.setDead();
+        }
     }
 
     @Override
@@ -112,14 +150,14 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
         return this.getDataManager().get(DATA_BURN_TICKS);
     }
 
-    public EntityBoatLantern setBurnTicks(int ticks) {
+    public EntityLantern setBurnTicks(int ticks) {
         ticks = ticks < 0 ? 0 : ticks;
         this.getDataManager().set(DATA_BURN_TICKS, ticks);
         return this;
     }
 
     @Override
-    public EntityBoatLantern addBurnTicks(int ticks) {
+    public EntityLantern addBurnTicks(int ticks) {
         return this.setBurnTicks(this.getRemainingBurnTicks() + ticks);
     }
 
@@ -129,19 +167,20 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
     }
 
     @Override
+    public boolean canBeCollidedWith() {
+        return true;
+    }
+
+    @Override
     public boolean processInitialInteract(EntityPlayer player, @Nullable ItemStack stack, EnumHand hand) {
         if (player.isSneaking()) {
             if (!this.worldObj.isRemote) {
                 GuiHandler.getInstance().openGui(player, this);
             }
         } else {
-            if (player.isRidingOrBeingRiddenBy(this)) {
-                boolean lit = this.isLit();
-                if (lit || this.getRemainingBurnTicks() > 0 || this.consumeFuel()) {
-                    this.setLit(!lit);
-                }
-            } else {
-                return super.processInitialInteract(player, stack, hand);
+            boolean lit = this.isLit();
+            if (lit || this.getRemainingBurnTicks() > 0 || this.consumeFuel()) {
+                this.setLit(!lit);
             }
         }
         return true;
@@ -155,40 +194,31 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
         if (this.isEntityInvulnerable(source)) {
             return false;
         } else if (!this.worldObj.isRemote && !this.isDead) {
-            if (source instanceof EntityDamageSourceIndirect && source.getEntity() != null && this.isPassenger(source.getEntity())) {
-                return false;
-            } else {
-                this.setForwardDirection(-this.getForwardDirection());
-                this.setTimeSinceHit(10);
-                this.setDamageTaken(this.getDamageTaken() + amount * 10.0F);
-                this.setBeenAttacked();
-                boolean flag = source.getEntity() instanceof EntityPlayer && ((EntityPlayer)source.getEntity()).capabilities.isCreativeMode;
-                if (flag || this.getDamageTaken() > 40.0F) {
-                    if (!flag && this.worldObj.getGameRules().getBoolean("doEntityDrops")) {
-                        this.dropItems();
-                    }
-                    this.setDead();
-                }
-                return true;
+            this.setBeenAttacked();
+            boolean flag = source.getEntity() instanceof EntityPlayer && ((EntityPlayer) source.getEntity()).capabilities.isCreativeMode;
+            if (flag) {
+                this.dropItems();
+                this.setDead();
             }
+            return true;
         } else {
             return true;
         }
     }
 
     public void dropItems() {
-        this.dropItemWithOffset(this.getItemBoat(), 1, 0.0F);
-        ItemStack stack = new ItemStack(BlockRegistry.getInstance().blockLantern, 1, 0);
-        ItemHandlerLantern lantern = LanternItemCache.getInstance().getLantern(stack);
-        if(lantern != null) {
-            lantern.copyFrom(this);
+        if (!this.worldObj.isRemote && this.worldObj.getGameRules().getBoolean("doEntityDrops")) {
+            ItemStack stack = new ItemStack(BlockRegistry.getInstance().blockLantern, 1, 0);
+            ItemHandlerLantern lantern = LanternItemCache.getInstance().getLantern(stack);
+            if (lantern != null) {
+                lantern.copyFrom(this);
+            }
+            this.entityDropItem(stack, 0.0F);
         }
-        this.entityDropItem(stack, 0.0F);
     }
 
     @Override
     protected void writeEntityToNBT(NBTTagCompound tag) {
-        super.writeEntityToNBT(tag);
         this.writeInventoryToNBT(tag);
         this.setLit(tag.getBoolean(Names.NBT.LIT));
         this.setBurnTicks(tag.getInteger(Names.NBT.BURN_TICKS));
@@ -196,7 +226,6 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
 
     @Override
     protected void readEntityFromNBT(NBTTagCompound tag) {
-        super.readEntityFromNBT(tag);
         this.readInventoryFromNBT(tag);
         tag.setBoolean(Names.NBT.LIT, this.isLit());
         tag.setInteger(Names.NBT.BURN_TICKS, this.getRemainingBurnTicks());
@@ -204,6 +233,10 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
 
     @Override
     public void markDirty() {}
+
+    public void mountOnBoat(EntityBoat boat) {
+        this.startRiding(boat);
+    }
 
     @Override
     public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
@@ -220,15 +253,15 @@ public class EntityBoatLantern extends EntityBoat implements ILantern, IInventor
         }
     }
 
-    public static class RenderFactory implements IRenderFactory<EntityBoatLantern> {
-        public static final RenderFactory FACTORY = new RenderFactory();
+    public static class RenderFactory implements IRenderFactory<EntityLantern> {
+        public static final EntityLantern.RenderFactory FACTORY = new EntityLantern.RenderFactory();
 
         private RenderFactory() {}
 
         @Override
         @SideOnly(Side.CLIENT)
-        public Render<? super EntityBoatLantern> createRenderFor(RenderManager manager) {
-            return new RenderEntityBoatLantern(manager);
+        public Render<? super EntityLantern> createRenderFor(RenderManager manager) {
+            return new RenderEntityLantern(manager);
         }
     }
 }

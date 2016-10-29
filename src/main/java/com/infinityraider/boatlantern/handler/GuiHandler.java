@@ -5,7 +5,8 @@ import com.infinityraider.boatlantern.block.BlockLantern;
 import com.infinityraider.boatlantern.block.tile.TileEntityLantern;
 import com.infinityraider.boatlantern.container.ContainerLantern;
 import com.infinityraider.boatlantern.container.GuiContainerLantern;
-import com.infinityraider.boatlantern.entity.EntityBoatLantern;
+import com.infinityraider.boatlantern.entity.EntityLantern;
+import com.infinityraider.boatlantern.lantern.IInventoryLantern;
 import com.infinityraider.boatlantern.lantern.ItemHandlerLantern;
 import com.infinityraider.boatlantern.lantern.LanternItemCache;
 import net.minecraft.entity.Entity;
@@ -25,7 +26,7 @@ public class GuiHandler implements IGuiHandler {
 
     public static final int LANTERN_INVENTORY_BLOCK = 0;
     public static final int LANTERN_INVENTORY_ITEM = 1;
-    public static final int LANTERN_INVENTORY_BOAT = 2;
+    public static final int LANTERN_INVENTORY_ENTITY = 2;
 
     private GuiHandler() {}
 
@@ -40,8 +41,8 @@ public class GuiHandler implements IGuiHandler {
         }
     }
 
-    public void openGui(EntityPlayer player, EntityBoatLantern boat) {
-        this.openGui(player, LANTERN_INVENTORY_BOAT, player.getEntityWorld(), boat.getEntityId(), 0, 0);
+    public void openGui(EntityPlayer player, EntityLantern lantern) {
+        this.openGui(player, LANTERN_INVENTORY_ENTITY, player.getEntityWorld(), lantern.getEntityId(), 0, 0);
     }
 
     protected void openGui(EntityPlayer player, int id, World world, int x, int y, int z) {
@@ -66,10 +67,10 @@ public class GuiHandler implements IGuiHandler {
                     return new ContainerLantern(player.inventory, lantern.getLantern(player, stack));
                 }
                 break;
-            case LANTERN_INVENTORY_BOAT:
+            case LANTERN_INVENTORY_ENTITY:
                 Entity entity = player.getEntityWorld().getEntityByID(x);
-                if(entity instanceof EntityBoatLantern) {
-                    return new ContainerLantern(player.inventory, (EntityBoatLantern) entity);
+                if(entity instanceof IInventoryLantern) {
+                    return new ContainerLantern(player.inventory, (IInventoryLantern) entity);
                 }
                 break;
         }

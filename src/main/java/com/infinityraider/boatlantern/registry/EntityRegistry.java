@@ -1,6 +1,6 @@
 package com.infinityraider.boatlantern.registry;
 
-import com.infinityraider.boatlantern.entity.EntityBoatLantern;
+import com.infinityraider.boatlantern.entity.EntityLantern;
 import com.infinityraider.boatlantern.reference.Reference;
 import com.infinityraider.infinitylib.entity.EntityRegistryEntry;
 
@@ -11,13 +11,13 @@ public class EntityRegistry {
         return INSTANCE;
     }
 
-    public final EntityRegistryEntry<EntityBoatLantern> entityBoatLantern;
+    public final EntityRegistryEntry<EntityLantern> entityLantern;
 
     private EntityRegistry() {
-        this.entityBoatLantern = new EntityRegistryEntry<>(EntityBoatLantern.class, Reference.MOD_ID.toLowerCase() + ".entityBoatLantern")
-                .setTrackingDistance(64)
+        this.entityLantern = new EntityRegistryEntry<>(EntityLantern.class, Reference.MOD_ID.toLowerCase() + ".entityLantern")
+                .setTrackingDistance(32)
                 .setVelocityUpdates(true)
                 .setUpdateFrequency(1)
-                .setRenderFactory(EntityBoatLantern.RenderFactory.FACTORY);
+                .setRenderFactory(EntityLantern.RenderFactory.FACTORY);
     }
 }

@@ -2,7 +2,7 @@ package com.infinityraider.boatlantern.block;
 
 import com.google.common.collect.ImmutableList;
 import com.infinityraider.boatlantern.block.tile.TileEntityLantern;
-import com.infinityraider.boatlantern.entity.EntityBoatLantern;
+import com.infinityraider.boatlantern.entity.EntityLantern;
 import com.infinityraider.boatlantern.handler.GuiHandler;
 import com.infinityraider.boatlantern.handler.LightingHandler;
 import com.infinityraider.boatlantern.lantern.ILantern;
@@ -16,7 +16,6 @@ import com.infinityraider.infinitylib.block.ICustomRenderedBlock;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
 import com.infinityraider.infinitylib.item.IItemWithRecipe;
 import com.infinityraider.infinitylib.reference.Constants;
-import com.infinityraider.infinitylib.render.block.IBlockRenderingHandler;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -248,26 +247,24 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IC
             return new ActionResult<>(EnumActionResult.PASS, stack);
         }
 
-        public void createLanternBoat(EntityPlayer player, ItemStack stack, EntityBoat boat) {
+        public void mountLanternOnBoat(EntityPlayer player, ItemStack stack, EntityBoat boat) {
             if(!player.getEntityWorld().isRemote) {
-                EntityBoatLantern boatLantern = new EntityBoatLantern(boat, stack);
+                EntityLantern entity = new EntityLantern(player);
                 ItemHandlerLantern lantern = this.getLantern(player, stack);
                 if (lantern != null) {
-                    boatLantern.copyFrom(lantern);
+                    entity.copyFrom(lantern);
                 }
-                boat.setDead();
-                player.getEntityWorld().spawnEntityInWorld(boatLantern);
-                if(!player.capabilities.isCreativeMode) {
-                    player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
-                }
+                player.getEntityWorld().spawnEntityInWorld(entity);
+                player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+                entity.mountOnBoat(boat);
             }
         }
 
         @Override
-        public void onUpdate(ItemStack stack, World worldIn, Entity entity, int itemSlot, boolean isSelected) {
+        public void onUpdate(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
             if(shouldLightTheWorld(stack, entity, itemSlot, isSelected)) {
                 ItemHandlerLantern lantern = this.getLantern(entity, stack);
-                if(lantern != null) {
+                if(lantern != null && !world.isRemote) {
                     lantern.updateTick();
                 }
             } else {
@@ -285,7 +282,7 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IC
             if(!entity.getEntityWorld().isRemote) {
                 ItemStack stack = entity.getEntityItem();
                 ItemHandlerLantern lantern = this.getLantern(entity, stack);
-                if (lantern != null) {
+                if (lantern != null && !entity.getEntityWorld().isRemote) {
                     lantern.updateTick();
                     entity.setEntityItemStack(stack);
                 }
