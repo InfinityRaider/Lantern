@@ -1,8 +1,10 @@
 package com.infinityraider.boatlantern.entity;
 
+import com.infinityraider.boatlantern.BoatLantern;
 import com.infinityraider.boatlantern.handler.GuiHandler;
 import com.infinityraider.boatlantern.handler.LightingHandler;
 import com.infinityraider.boatlantern.lantern.*;
+import com.infinityraider.boatlantern.network.MessageSyncServerPos;
 import com.infinityraider.boatlantern.reference.Names;
 import com.infinityraider.boatlantern.registry.BlockRegistry;
 import com.infinityraider.boatlantern.render.entity.RenderEntityLantern;
@@ -35,6 +37,10 @@ public class EntityLantern extends Entity implements ILantern, IInventoryLantern
 
     private final LanternLogic lanternLogic = new LanternLogic(this);
     private ItemStack fuelStack;
+
+    private double prevX;
+    private double prevY;
+    private double prevZ;
 
     public EntityLantern(World world) {
         super(world);
@@ -109,6 +115,11 @@ public class EntityLantern extends Entity implements ILantern, IInventoryLantern
         if (this.isRiding() && entity.isDead) {
             this.dismountRidingEntity();
         } else {
+            if(this.firstUpdate) {
+                this.prevX = this.posX;
+                this.prevY = this.posY;
+                this.prevZ = this.posZ;
+            }
             this.motionX = 0.0D;
             this.motionY = 0.0D;
             this.motionZ = 0.0D;
@@ -122,13 +133,28 @@ public class EntityLantern extends Entity implements ILantern, IInventoryLantern
             double newX = entity.posX + dx * cosY - dz * sinY;
             double newY = entity.posY + dy;
             double newZ = entity.posZ + dx * sinY + dz * cosY;
-            this.prevPosX = this.posX;
-            this.prevPosY = this.posY;
-            this.prevPosZ = this.posZ;
+            this.prevPosX = prevX;
+            this.prevPosY = prevY;
+            this.prevPosZ = prevZ;
+            this.lastTickPosX = this.prevX;
+            this.lastTickPosY = this.prevY;
+            this.lastTickPosZ = this.prevZ;
             this.setPosition(newX, newY, newZ);
+            this.prevX = this.posX;
+            this.prevY = this.posY;
+            this.prevZ = this.posZ;
             this.prevRotationYaw = this.rotationYaw;
+            this.setRenderYawOffset(entity.rotationYaw);
             this.rotationYaw = entity.rotationYaw;
+            if(!this.getEntityWorld().isRemote) {
+                BoatLantern.instance.getNetworkWrapper().sendToAll(new MessageSyncServerPos(this));
+            }
         }
+    }
+
+    @Override
+    public double getYOffset() {
+        return 0.2;
     }
 
     @Override

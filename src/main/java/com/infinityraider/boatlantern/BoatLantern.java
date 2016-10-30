@@ -1,5 +1,6 @@
 package com.infinityraider.boatlantern;
 
+import com.infinityraider.boatlantern.network.MessageSyncServerPos;
 import com.infinityraider.boatlantern.proxy.IProxy;
 import com.infinityraider.boatlantern.reference.Reference;
 import com.infinityraider.boatlantern.registry.BlockRegistry;
@@ -49,5 +50,7 @@ public class BoatLantern extends InfinityMod {
     }
 
     @Override
-    public void registerMessages(INetworkWrapper wrapper) {}
+    public void registerMessages(INetworkWrapper wrapper) {
+        wrapper.registerMessage(MessageSyncServerPos.class);
+    }
 }
