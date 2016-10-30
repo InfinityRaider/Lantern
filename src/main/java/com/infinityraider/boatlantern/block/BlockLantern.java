@@ -70,6 +70,7 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IC
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public IBlockState onBlockPlaced(World worldIn, BlockPos pos, EnumFacing facing, float hitX, float hitY, float hitZ, int meta, EntityLivingBase placer) {
         IBlockState state = this.getDefaultState();
         ItemHandlerLantern lantern = LanternItemCache.getInstance().getLantern(placer, placer.getHeldItemMainhand());
@@ -266,9 +267,8 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IC
                 ItemHandlerLantern lantern = this.getLantern(entity, stack);
                 if(lantern != null && !world.isRemote) {
                     lantern.updateTick();
+                    LightingHandler.getInstance().playerLightTick(entity);
                 }
-            } else {
-                LightingHandler.getInstance().removeLastLight(entity);
             }
         }
 
@@ -300,7 +300,9 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IC
                 if (ConfigurationHandler.getInstance().onlyLightWorldWhenHeld) {
                     if(entity instanceof EntityPlayer) {
                         EntityPlayer player = (EntityPlayer) entity;
-                        return isSelected || slot == player.inventory.currentItem || slot == 40;
+                        ItemStack main = player.getHeldItem(EnumHand.MAIN_HAND);
+                        ItemStack off = player.getHeldItem(EnumHand.OFF_HAND);
+                        return isSelected || stack == main || stack == off;
                     } else {
                         return isSelected;
                     }

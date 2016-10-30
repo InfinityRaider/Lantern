@@ -11,6 +11,7 @@ import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import javax.annotation.Nullable;
 import java.util.IdentityHashMap;
@@ -24,9 +25,11 @@ public class LightingHandler implements IWorldEventListener {
     }
 
     private final Map<Entity, BlockPos> lights;
+    private final Map<Entity, Boolean> placed;
 
     private LightingHandler() {
         this.lights = new IdentityHashMap<>();
+        this.placed = new IdentityHashMap<>();
     }
 
     public void spreadLight(Entity entity) {
@@ -86,10 +89,19 @@ public class LightingHandler implements IWorldEventListener {
         }
     }
 
+    public void playerLightTick(Entity entity) {
+        if(!entity.getEntityWorld().isRemote) {
+            this.placed.put(entity, true);
+        }
+    }
+
     //useful IWorldEventListener callback to avoid memory leaks
     @Override
     public void onEntityRemoved(Entity entity) {
         removeLastLight(entity);
+        if(this.placed.containsKey(entity)) {
+            this.placed.remove(entity);
+        }
     }
 
     @SubscribeEvent
@@ -97,6 +109,19 @@ public class LightingHandler implements IWorldEventListener {
     public void onWorldLoad(WorldEvent.Load event) {
         if(!event.getWorld().isRemote) {
             event.getWorld().addEventListener(this);
+        }
+    }
+
+    @SubscribeEvent
+    @SuppressWarnings("unused")
+    public void onPlayerTick(TickEvent.PlayerTickEvent event) {
+        if(!event.player.getEntityWorld().isRemote) {
+            if(this.placed.containsKey(event.player)) {
+                if(!this.placed.get(event.player)) {
+                    this.removeLastLight(event.player);
+                }
+                this.placed.put(event.player, false);
+            }
         }
     }
 

@@ -45,7 +45,7 @@ public class ConfigurationHandler {
                 "set to false to make the lanterns not require fuel");
 
         disableWorldLighting = config.getBoolean("Disable world lighting", Categories.GENERAL.getName(), false,
-                "set to true to disable lighting hte world from lanters in item or boat form");
+                "set to true to disable lighting the world from lanterns in item or boat form");
 
         burnTimeMultiplier = config.getInt("Burn time multiplier", Categories.GENERAL.getName(), 5, 1, 50,
                 "Defines how long burnable items can burn in the lamp, the duration is the furnace burn time is multiplied by this number");
