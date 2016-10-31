@@ -13,8 +13,8 @@ import net.minecraftforge.fml.common.SidedProxy;
 @Mod(
         modid = Reference.MOD_ID,
         name = Reference.MOD_NAME,
-        version = Reference.MOD_VERSION,
-        dependencies = "required-after:infinitylib"
+        version = Reference.VERSION,
+        dependencies = com.infinityraider.infinitylib.reference.Reference.DEPENCENCY
 )
 public class BoatLantern extends InfinityMod {
     @Mod.Instance(Reference.MOD_ID)

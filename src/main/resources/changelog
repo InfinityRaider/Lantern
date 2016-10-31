@@ -2,6 +2,7 @@ Changelog
 ---------
 0.2.1
 - FIXED: server crash
+- CHANGE: switched to quickmod
 
 0.2
 - Initial build
