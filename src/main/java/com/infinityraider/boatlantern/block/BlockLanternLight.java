@@ -76,6 +76,7 @@ public class BlockLanternLight extends BlockBase implements ICustomRenderedBlock
     }
 
     @Override
+    @SideOnly(Side.CLIENT)
     public IBlockRenderingHandler getRenderer() {
         return RenderBlockEmpty.createEmptyRender(this);
     }
