@@ -1,7 +1,6 @@
 package com.infinityraider.boatlantern.network;
 
 import com.infinityraider.infinitylib.network.MessageBase;
-import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -43,21 +42,5 @@ public class MessageSyncServerPos extends MessageBase<IMessage> {
     @Override
     protected IMessage getReply(MessageContext ctx) {
         return null;
-    }
-
-    @Override
-    public void fromBytes(ByteBuf buf) {
-        this.entity = this.readEntityFromByteBuf(buf);
-        this.x = buf.readLong();
-        this.y = buf.readLong();
-        this.z = buf.readLong();
-    }
-
-    @Override
-    public void toBytes(ByteBuf buf) {
-        this.writeEntityToByteBuf(buf, this.entity);
-        buf.writeLong(this.x);
-        buf.writeLong(this.y);
-        buf.writeLong(this.z);
     }
 }

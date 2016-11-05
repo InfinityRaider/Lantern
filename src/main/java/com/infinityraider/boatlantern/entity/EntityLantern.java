@@ -1,6 +1,5 @@
 package com.infinityraider.boatlantern.entity;
 
-import com.infinityraider.boatlantern.BoatLantern;
 import com.infinityraider.boatlantern.handler.GuiHandler;
 import com.infinityraider.boatlantern.handler.LightingHandler;
 import com.infinityraider.boatlantern.lantern.*;
@@ -147,7 +146,7 @@ public class EntityLantern extends Entity implements ILantern, IInventoryLantern
             this.setRenderYawOffset(entity.rotationYaw);
             this.rotationYaw = entity.rotationYaw;
             if(!this.getEntityWorld().isRemote) {
-                BoatLantern.instance.getNetworkWrapper().sendToAll(new MessageSyncServerPos(this));
+                new MessageSyncServerPos(this).sendToAll();
             }
         }
     }
