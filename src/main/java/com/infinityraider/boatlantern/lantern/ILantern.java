@@ -21,9 +21,18 @@ public interface ILantern {
         if(stack == null) {
             return false;
         } else {
-            this.addBurnTicks(TileEntityFurnace.getItemBurnTime(stack) * ConfigurationHandler.getInstance().burnTimeMultiplier);
-            this.getInventory().decrStackSize(0, 1);
-            return true;
+            int ticks = TileEntityFurnace.getItemBurnTime(stack);
+            if(ticks > 0) {
+                this.addBurnTicks(ticks * ConfigurationHandler.getInstance().burnTimeMultiplier);
+                if(stack.getItem().hasContainerItem(stack)) {
+                    this.getInventory().setInventorySlotContents(0, stack.getItem().getContainerItem(stack));
+                } else {
+                    this.getInventory().decrStackSize(0, 1);
+                }
+                return true;
+            } else {
+                return false;
+            }
         }
     }
 

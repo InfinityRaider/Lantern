@@ -1,5 +1,9 @@
 Changelog
 ---------
+0.3
+- FIXED: lava buckets being consumed by the lantern
+- FIXED: dupe bug when right clicking stacks out of the lantern
+
 0.2.1
 - FIXED: server crash
 - CHANGE: switched to quickmod

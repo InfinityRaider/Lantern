@@ -43,10 +43,13 @@ public interface IInventoryLantern extends IInventorySerializableItemHandler {
         count = Math.min(count, fuelStack.stackSize);
         ItemStack stack = fuelStack.copy();
         stack.stackSize = count;
-        if(fuelStack.stackSize <= count || fuelStack.stackSize <= 0) {
-            this.setInventorySlotContents(index, fuelStack.getItem().getContainerItem(fuelStack));
+        fuelStack.stackSize = fuelStack.stackSize - count;
+        if(fuelStack.stackSize <= 0) {
+            this.setInventorySlotContents(index, null);
+        } else {
+            this.markDirty();
         }
-        return stack;
+        return stack.stackSize > 0 ? stack : null;
     }
 
     @Nullable
