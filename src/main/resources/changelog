@@ -1,6 +1,9 @@
 Changelog
 ---------
-0.3
+0.4.0
+- CHANGE: updated InfinityLib: rendering bugfixes and optimizations
+
+0.3.0
 - FIXED: lava buckets being consumed by the lantern
 - FIXED: dupe bug when right clicking stacks out of the lantern
 
