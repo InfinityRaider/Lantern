@@ -14,8 +14,8 @@ import com.infinityraider.boatlantern.render.block.RenderBlockLantern;
 import com.infinityraider.infinitylib.block.BlockBaseTile;
 import com.infinityraider.infinitylib.block.ICustomRenderedBlock;
 import com.infinityraider.infinitylib.block.blockstate.InfinityProperty;
-import com.infinityraider.infinitylib.item.IItemWithRecipe;
 import com.infinityraider.infinitylib.reference.Constants;
+import com.infinityraider.infinitylib.utility.IRecipeRegister;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
@@ -41,6 +41,7 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -51,7 +52,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements ICustomRenderedBlock, IItemWithRecipe {
+public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements ICustomRenderedBlock, IRecipeRegister {
     public static final AxisAlignedBB BOUNDING_BOX = new AxisAlignedBB(Constants.UNIT * 5, 0, Constants.UNIT * 5, Constants.UNIT * 11, Constants.UNIT * 11, Constants.UNIT * 11);
 
     public static final InfinityProperty[] PROPERTIES = new InfinityProperty[] {
@@ -207,6 +208,10 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> implements IC
     }
 
     @Override
+    public void registerRecipes() {
+        this.getRecipes().forEach(GameRegistry::addRecipe);
+    }
+
     public List<IRecipe> getRecipes() {
         return ImmutableList.of(new ShapedOreRecipe(this, " s ", "sbs", " p ", 's', "stickWood", 'b', Items.GLASS_BOTTLE, 'p', "slabWood"));
     }

@@ -65,7 +65,7 @@ public class RenderBlockLantern extends RenderBlockBase<BlockLantern> {
                 tessellator.rotate(90, 0, 1, 0);
                 break;
         }
-        tessellator.translate(-0.5, 0, -0.5);
+        tessellator.translate(-0.5F, 0, -0.5F);
         tessellator.scale(2, 2, 2);
     }
 
