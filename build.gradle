@@ -2,63 +2,135 @@
 // For those who want the bleeding edge
 buildscript {
     repositories {
+        maven { url = 'https://files.minecraftforge.net/maven' }
         jcenter()
-        maven {
-            name = "forge"
-            url = "http://files.minecraftforge.net/maven"
+        mavenCentral()
+        flatDir{
+            dirs 'lib'
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
     }
 }
+apply plugin: 'net.minecraftforge.gradle'
+apply plugin: 'idea'
+apply plugin: 'maven-publish'
 
-// Plugins
-plugins {
-    id 'com.rlonryan.quikmod' version '1.0.16'
-}
+// Load Properties
+ext.configFile = file('mod.properties')
+ext.config = parseConfig(configFile)
 
-dependencies {
-    compile project(':lib/InfinityLib')
-}
+version = "${config.version_major}.${config.version_minor}.${config.version_patch}"
+group = "${config.package}" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = config.id
 
-// Tweak MineCraft Task
+sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = "${config.version_java}"
+
 minecraft {
-    makeObfSourceJar = false
-    useDepAts = true
+ mappings channel: "${config.mapping_channel}", version: "${config.mapping_version}"
+    runs {
+        client {
+            workingDirectory project.file('run')
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                lantern {
+                    source sourceSets.main
+                }
+                infinitylib {
+                    //This still grabs the sourceSets from the main project, therefore one must manually correct it in runClient afterwards
+                    source project(":lib/InfinityLib").sourceSets.main
+                }
+            }
+        }
+
+        server {
+            workingDirectory project.file('run')
+            // Recommended logging data for a userdev environment
+            property 'forge.logging.markers', 'SCAN,REGISTRIES,REGISTRYDUMP'
+            // Recommended logging level for the console
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                lantern {
+                    source sourceSets.main
+                }
+                infinitylib {
+                    //This still grabs the sourceSets from the main project, therefore one must manually correct it in runServer afterwards
+                    source project(":lib/InfinityLib").sourceSets.main
+                }
+            }
+        }
+    }
 }
 
 repositories {
     maven {
-        name "JEI"
-        url "http://dvs1.progwml6.com/files/maven"
+        // for JEI
+        url "https://dvs1.progwml6.com/files/maven"
     }
 }
 
 dependencies {
-    // Mods (For auto-import)
-    compile project(':lib/InfinityLib')
+    minecraft "net.minecraftforge:forge:${config.version_minecraft}-${config.version_forge}"
+
+    compile project(":lib/InfinityLib")
+
+    compileOnly fg.deobf("mezz.jei:jei-1.16.4:7.6.0.58:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.16.4:7.6.0.58")
 }
 
-processResources {
+processResources
+{
+    // make sure to include mods.toml from the main mod
+    from(sourceSets.main.resources.srcDirs) {
+        include 'META-INF/mods.toml'
 
+        // replace version and mcversion
+        expand 'version': project.version
+    }
+
+    // from the main mod, copy everything else, thats not the mods.toml
+    from(sourceSets.main.resources.srcDirs) {
+        exclude 'META-INF/mods.toml', '**/psd/**'
+    }
+    /*
+    // make sure to include mods.toml from infinitylib
+    from(sourceSets.infinitylib.resources.srcDirs) {
+        include 'META-INF/mods.toml'
+
+        // replace version and mcversion
+        expand 'version': project.version
+    }
+    */
+
+    // from InfinityLib, copy everything else, thats not the mods.toml
+    //from(sourceSets.infinitylib.resources.srcDirs) {
+        //exclude 'META-INF/mods.toml', '**/psd/**'
+    //}
 }
 
-// Javadoc
-task mainJavadoc(type: Javadoc) {
-    source = sourceSets.main.allJava
-    title = "AgriCraft ${mod.version} Documentation"
-    destinationDir = file("${project.docsDir}/mainJavadoc")
-    failOnError = false
+def parseConfig(File config) {
+    config.withReader {
+        def prop = new Properties()
+        prop.load(it)
+        return (new ConfigSlurper().parse(prop))
+    }
 }
 
-// Jars
-task sourcesJar(type: Jar, dependsOn: classes) {
-    classifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-task javadocJar(type: Jar, dependsOn: mainJavadoc) {
-    classifier = 'javadoc'
-    from "${project.docsDir}/mainJavadoc"
+jar {
+    archiveName = "${baseName} ${version}.${extension}"
+    manifest {
+        attributes([
+                "Specification-Title": "${config.id}",
+                "Specification-Vendor": "${config.author}",
+                "Specification-Version": "1", // We are version 1 of ourselves
+                "Implementation-Title": "${config.name}",
+                "Implementation-Version": "${config.version_major}.${config.version_minor}.${config.version_patch}",
+                "Implementation-Vendor" :"${config.author}",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
