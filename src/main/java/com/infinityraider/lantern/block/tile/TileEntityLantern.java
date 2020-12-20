@@ -1,5 +1,6 @@
 package com.infinityraider.lantern.block.tile;
 
+import com.infinityraider.lantern.Lantern;
 import com.infinityraider.lantern.block.BlockLantern;
 import com.infinityraider.lantern.lantern.IInventoryLantern;
 import com.infinityraider.lantern.lantern.ILantern;
@@ -7,25 +8,24 @@ import com.infinityraider.lantern.lantern.LanternLogic;
 import com.infinityraider.lantern.reference.Names;
 import com.infinityraider.infinitylib.block.tile.TileEntityBase;
 import net.minecraft.block.BlockState;
-import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
-public class TileEntityLantern extends TileEntityBase implements ILantern, IInventoryLantern, ITickable {
+public class TileEntityLantern extends TileEntityBase implements ILantern, IInventoryLantern, ITickableTileEntity {
     private final LanternLogic lanternLogic = new LanternLogic(this);
     private final LazyOptional<IItemHandler> capability;
 
     private ItemStack fuelStack;
     private int burnTicksRemaining;
 
-    public TileEntityLantern(TileEntityType<?> type) {
-        super(type);
+    public TileEntityLantern() {
+        super(Lantern.instance.getModTileRegistry().lantern);
         this.capability = LazyOptional.of(() -> this);
     }
 

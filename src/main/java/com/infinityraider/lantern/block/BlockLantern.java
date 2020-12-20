@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.Collections;
 import java.util.List;
+import java.util.function.BiFunction;
 
 public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     public static final InfProperty<Boolean> LIT = InfProperty.Creators.create("lit", false);
@@ -50,6 +51,8 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
             .add(HANGING)
             .waterloggable()
             .build();
+
+    private static final BiFunction<BlockState, IBlockReader, TileEntityLantern> TILE_FACTORY = (s, w) -> new TileEntityLantern();
 
     private final VoxelShape hitBoxStanding;
     private final VoxelShape hitBoxHanging;
@@ -165,11 +168,6 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     }
 
     @Override
-    public TileEntityLantern createTileEntity() {
-        return new TileEntityLantern();
-    }
-
-    @Override
     @OnlyIn(Dist.CLIENT)
     public RenderType getRenderType() {
         return RenderType.getTranslucent();
@@ -179,5 +177,10 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
     @Deprecated
     public boolean isTransparent(BlockState state) {
         return true;
+    }
+
+    @Override
+    public BiFunction<BlockState, IBlockReader, TileEntityLantern> getTileEntityFactory() {
+        return TILE_FACTORY;
     }
 }

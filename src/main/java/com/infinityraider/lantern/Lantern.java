@@ -11,6 +11,7 @@ import com.infinityraider.lantern.registry.EntityRegistry;
 import com.infinityraider.infinitylib.InfinityMod;
 import com.infinityraider.infinitylib.network.INetworkWrapper;
 import com.infinityraider.lantern.registry.ItemRegistry;
+import com.infinityraider.lantern.registry.TileRegistry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.Mod;
@@ -44,6 +45,11 @@ public class Lantern extends InfinityMod<IProxy, Config> {
     @Override
     public BlockRegistry getModBlockRegistry() {
         return BlockRegistry.getInstance();
+    }
+
+    @Override
+    public TileRegistry getModTileRegistry() {
+        return TileRegistry.getInstance();
     }
 
     @Override
