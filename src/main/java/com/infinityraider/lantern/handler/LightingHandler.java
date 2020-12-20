@@ -1,23 +1,21 @@
 package com.infinityraider.lantern.handler;
 
+import com.infinityraider.lantern.Lantern;
 import com.infinityraider.lantern.registry.BlockRegistry;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.world.IWorldEventListener;
 import net.minecraft.world.World;
-import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.event.TickEvent;
+import net.minecraftforge.event.entity.EntityLeaveWorldEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
 
 import javax.annotation.Nullable;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-public class LightingHandler implements IWorldEventListener {
+public class LightingHandler {
     private static final LightingHandler INSTANCE = new LightingHandler();
 
     public static LightingHandler getInstance() {
@@ -33,7 +31,7 @@ public class LightingHandler implements IWorldEventListener {
     }
 
     public void spreadLight(Entity entity) {
-        if(ConfigurationHandler.getInstance().disableWorldLighting) {
+        if(Lantern.instance.getConfig().disableWorldLighting()) {
             this.removeLastLight(entity);
             return;
         }
@@ -51,7 +49,7 @@ public class LightingHandler implements IWorldEventListener {
     protected BlockPos placeLight(Entity entity) {
         World world = entity.getEntityWorld();
         BlockPos pos = entity.getPosition();
-        IBlockState state = world.getBlockState(pos);
+        BlockState state = world.getBlockState(pos);
         if(state.getBlock() == BlockRegistry.getInstance().blockLight) {
             return null;
         }
@@ -82,9 +80,9 @@ public class LightingHandler implements IWorldEventListener {
     protected void removeLight(Entity entity, BlockPos pos) {
         World world = entity.getEntityWorld();
         if(!world.isRemote) {
-            IBlockState state = world.getBlockState(pos);
+            BlockState state = world.getBlockState(pos);
             if(state.getBlock() == BlockRegistry.getInstance().blockLight) {
-                world.setBlockToAir(pos);
+                world.setBlockState(pos, Blocks.AIR.getDefaultState());
             }
         }
     }
@@ -95,21 +93,11 @@ public class LightingHandler implements IWorldEventListener {
         }
     }
 
-    //useful IWorldEventListener callback to avoid memory leaks
-    @Override
-    public void onEntityRemoved(Entity entity) {
-        removeLastLight(entity);
-        if(this.placed.containsKey(entity)) {
-            this.placed.remove(entity);
-        }
-    }
-
     @SubscribeEvent
     @SuppressWarnings("unused")
-    public void onWorldLoad(WorldEvent.Load event) {
-        if(!event.getWorld().isRemote) {
-            event.getWorld().addEventListener(this);
-        }
+    public void onEntityRemoved(EntityLeaveWorldEvent event) {
+        removeLastLight(event.getEntity());
+        this.placed.remove(event.getEntity());
     }
 
     @SubscribeEvent
@@ -124,40 +112,4 @@ public class LightingHandler implements IWorldEventListener {
             }
         }
     }
-
-
-    //IWorldEventListener methods not useful here
-    //-------------------------------------------
-
-    @Override
-    public void notifyBlockUpdate(World worldIn, BlockPos pos, IBlockState oldState, IBlockState newState, int flags) {}
-
-    @Override
-    public void notifyLightSet(BlockPos pos) {}
-
-    @Override
-    public void markBlockRangeForRenderUpdate(int x1, int y1, int z1, int x2, int y2, int z2) {}
-
-    @Override
-    public void playSoundToAllNearExcept(@Nullable EntityPlayer player, SoundEvent soundIn, SoundCategory category, double x, double y, double z, float volume, float pitch) {}
-
-    @Override
-    public void playRecord(SoundEvent soundIn, BlockPos pos) {}
-
-    @Override
-    public void spawnParticle(int particleID, boolean ignoreRange, double xCoord, double yCoord, double zCoord, double xSpeed, double ySpeed, double zSpeed, int... parameters) {
-
-    }
-
-    @Override
-    public void onEntityAdded(Entity entity) {}
-
-    @Override
-    public void broadcastSound(int soundID, BlockPos pos, int data) {}
-
-    @Override
-    public void playEvent(EntityPlayer player, int type, BlockPos blockPosIn, int data) {}
-
-    @Override
-    public void sendBlockBreakProgress(int breakerId, BlockPos pos, int progress) {}
 }

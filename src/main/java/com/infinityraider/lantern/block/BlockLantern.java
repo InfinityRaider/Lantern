@@ -4,7 +4,6 @@ import com.infinityraider.infinitylib.block.property.InfProperty;
 import com.infinityraider.infinitylib.block.property.InfPropertyConfiguration;
 import com.infinityraider.lantern.Lantern;
 import com.infinityraider.lantern.block.tile.TileEntityLantern;
-import com.infinityraider.lantern.handler.GuiHandler;
 import com.infinityraider.lantern.item.ItemLantern;
 import com.infinityraider.lantern.lantern.ItemHandlerLantern;
 import com.infinityraider.lantern.lantern.LanternItemCache;

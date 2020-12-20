@@ -1,7 +1,6 @@
 package com.infinityraider.lantern.entity;
 
 import com.infinityraider.infinitylib.entity.EntityBase;
-import com.infinityraider.lantern.handler.GuiHandler;
 import com.infinityraider.lantern.handler.LightingHandler;
 import com.infinityraider.lantern.lantern.*;
 import com.infinityraider.lantern.network.MessageSyncServerPos;

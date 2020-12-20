@@ -6,12 +6,9 @@ import com.infinityraider.lantern.proxy.ClientProxy;
 import com.infinityraider.lantern.proxy.IProxy;
 import com.infinityraider.lantern.proxy.ServerProxy;
 import com.infinityraider.lantern.reference.Reference;
-import com.infinityraider.lantern.registry.BlockRegistry;
-import com.infinityraider.lantern.registry.EntityRegistry;
+import com.infinityraider.lantern.registry.*;
 import com.infinityraider.infinitylib.InfinityMod;
 import com.infinityraider.infinitylib.network.INetworkWrapper;
-import com.infinityraider.lantern.registry.ItemRegistry;
-import com.infinityraider.lantern.registry.TileRegistry;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.Mod;
@@ -60,6 +57,11 @@ public class Lantern extends InfinityMod<IProxy, Config> {
     @Override
     public EntityRegistry getModEntityRegistry() {
         return EntityRegistry.getInstance();
+    }
+
+    @Override
+    public ContainerRegistry getModContainerRegistry() {
+        return ContainerRegistry.getInstance();
     }
 
     @Override

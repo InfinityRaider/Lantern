@@ -5,7 +5,6 @@ import com.infinityraider.infinitylib.item.BlockItemBase;
 import com.infinityraider.lantern.Lantern;
 import com.infinityraider.lantern.block.BlockLantern;
 import com.infinityraider.lantern.entity.EntityLantern;
-import com.infinityraider.lantern.handler.GuiHandler;
 import com.infinityraider.lantern.handler.LightingHandler;
 import com.infinityraider.lantern.lantern.ILantern;
 import com.infinityraider.lantern.lantern.ItemHandlerLantern;

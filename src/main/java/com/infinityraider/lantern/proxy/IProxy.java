@@ -1,6 +1,5 @@
 package com.infinityraider.lantern.proxy;
 
-import com.infinityraider.lantern.Lantern;
 import com.infinityraider.lantern.config.Config;
 import com.infinityraider.lantern.handler.*;
 import com.infinityraider.lantern.lantern.LanternItemCache;
@@ -13,11 +12,6 @@ public interface IProxy extends IProxyBase<Config> {
     @Override
     default Function<ForgeConfigSpec.Builder, Config> getConfigConstructor() {
         return Config.Common::new;
-    }
-
-    @Override
-    default void initStart(FMLInitializationEvent event) {
-        NetworkRegistry.INSTANCE.registerGuiHandler(Lantern.instance, GuiHandler.getInstance());
     }
 
     @Override

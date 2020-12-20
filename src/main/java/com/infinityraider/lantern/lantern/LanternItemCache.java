@@ -2,7 +2,9 @@ package com.infinityraider.lantern.lantern;
 
 import com.infinityraider.lantern.item.ItemLantern;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.Hand;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -26,6 +28,11 @@ public class LanternItemCache {
 
     private LanternItemCache() {
         this.cache = new IdentityHashMap<>();
+    }
+
+    @Nullable
+    public ItemHandlerLantern getLantern(LivingEntity entity, Hand hand) {
+        return this.getLantern(entity, entity.getHeldItem(hand));
     }
 
     @Nullable
