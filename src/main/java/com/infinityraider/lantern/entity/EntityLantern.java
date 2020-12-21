@@ -1,7 +1,6 @@
 package com.infinityraider.lantern.entity;
 
 import com.infinityraider.infinitylib.entity.EntityBase;
-import com.infinityraider.infinitylib.utility.CoordinateConsumer;
 import com.infinityraider.lantern.container.ContainerLantern;
 import com.infinityraider.lantern.handler.LightingHandler;
 import com.infinityraider.lantern.lantern.*;
@@ -125,32 +124,21 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
             this.setMotion(0, 0, 0);
             this.tick();
             float yaw = mount.rotationYaw;
-            this.calculatePosition(this.positionSetter, mount.getPosX(), mount.getPosY(), mount.getPosZ(), yaw);
-            //this.calculatePosition(this.prevPositionSetter, mount.prevPosX, mount.prevPosY, mount.prevPosZ, yaw);
-            //this.calculatePosition(this.lastTickPositionSetter, mount.lastTickPosX, mount.lastTickPosY, lastTickPosZ, yaw);
-            //this.prevRotationYaw = this.rotationYaw;
+            // calculate yaw cosine and sine
+            double cosY = Math.cos(Math.toRadians(yaw));
+            double sinY = Math.sin(Math.toRadians(yaw));
+            // offset on boat
+            double dx = -0.145;
+            double dy = 0.25;
+            double dz = -0.6;
+            // calculate correct position:
+            double x = mount.getPosX() + dx*cosY - dz*sinY;
+            double y = mount.getPosY() + dy;
+            double z = mount.getPosZ() + dx*sinY + dz*cosY;
+            // apply position
+            this.setPosition(x, y, z);
             this.rotationYaw = yaw;
         }
-    }
-
-    private final CoordinateConsumer positionSetter = this::setPosition;
-    private final CoordinateConsumer prevPositionSetter = (x, y, z) -> {this.prevPosX = x; this.prevPosY = y; this.prevPosZ = z;};
-    private final CoordinateConsumer lastTickPositionSetter = (x, y, z) -> {this.lastTickPosX = x; this.lastTickPosY = y; this.lastTickPosZ = z;};
-
-    private void calculatePosition(CoordinateConsumer consumer, double mountX, double mountY, double mountZ, float mountYaw) {
-        // calculate yaw cosine and sine
-        double cosY = Math.cos(Math.toRadians(mountYaw));
-        double sinY = Math.sin(Math.toRadians(mountYaw));
-        // offset on boat
-        double dx = -0.145;
-        double dy = 0.25;
-        double dz = -0.6;
-        // calculate correct position:
-        double x = mountX + dx*cosY - dz*sinY;
-        double y = mountY + dy;
-        double z = mountZ + dx*sinY + dz*cosY;
-        // apply position
-        consumer.accept(x, y, z);
     }
 
     @Override
