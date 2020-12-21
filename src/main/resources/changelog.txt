@@ -1,5 +1,8 @@
 Changelog
 ---------
+2.0.0
+- CHANGE: Ported to 1.16.4
+
 0.11.0
 - CHANGE: updated InfinityLib
 

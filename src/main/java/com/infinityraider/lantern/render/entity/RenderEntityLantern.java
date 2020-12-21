@@ -24,12 +24,12 @@ public class RenderEntityLantern extends EntityRenderer<EntityLantern> implement
 
     @Override
     public void render(EntityLantern lantern, float entityYaw, float partialTicks, MatrixStack transforms, IRenderTypeBuffer buffer, int packedLightIn) {
-        transforms.push();
-
         Entity entity = lantern.getRidingEntity();
         if(entity == null) {
             return;
         }
+
+        transforms.push();
 
         //Render relative to the boat, because there are issues with the syncing of position between server and client
 

@@ -11,6 +11,9 @@ import com.infinityraider.infinitylib.container.ContainerBase;
 import com.infinityraider.lantern.lantern.ItemHandlerLantern;
 import com.infinityraider.lantern.lantern.LanternItemCache;
 import com.infinityraider.lantern.reference.Names;
+import net.minecraft.client.gui.IHasContainer;
+import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
@@ -30,6 +33,7 @@ import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.fml.network.IContainerFactory;
 import net.minecraftforge.fml.network.NetworkHooks;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 
@@ -51,8 +55,9 @@ public class ContainerLantern extends ContainerBase {
     }
 
     @Override
-    public ItemStack transferStackInSlot(PlayerEntity player, int clickedSlot) {
-        ItemStack itemstack = null;
+    @Nonnull
+    public ItemStack transferStackInSlot(@Nonnull PlayerEntity player, int clickedSlot) {
+        ItemStack itemstack = ItemStack.EMPTY;
         Slot slot = this.inventorySlots.get(clickedSlot);
         if (slot != null && slot.getHasStack()) {
             ItemStack itemStack1 = slot.getStack();
@@ -60,27 +65,27 @@ public class ContainerLantern extends ContainerBase {
             //try to move item from the lantern into the player's inventory
             if (clickedSlot >= PLAYER_INVENTORY_SIZE) {
                 if (!this.mergeItemStack(itemStack1, 0, inventorySlots.size() - 2, false)) {
-                    return null;
+                    return ItemStack.EMPTY;
                 }
             }
             else {
                 //try to move item from the player's inventory into the lantern
-                if(itemStack1.getItem() != null) {
+                if(!itemStack1.isEmpty()) {
                     if(this.getLanternInventory().isItemValidForSlot(0, itemStack1)) {
                         if (!this.mergeItemStack(itemStack1, PLAYER_INVENTORY_SIZE, PLAYER_INVENTORY_SIZE + 1, false)) {
-                            return null;
+                            return ItemStack.EMPTY;
                         }
                     }
                 }
             }
             if (itemStack1.getCount() == 0) {
-                slot.putStack(null);
+                slot.putStack(ItemStack.EMPTY);
             }
             else {
                 slot.onSlotChanged();
             }
             if (itemStack1.getCount() == itemstack.getCount()) {
-                return null;
+                return ItemStack.EMPTY;
             }
             slot.onTake(player, itemStack1);
         }
@@ -96,6 +101,11 @@ public class ContainerLantern extends ContainerBase {
         public boolean isItemValid(@Nullable ItemStack stack) {
             return stack == null || ForgeHooks.getBurnTime(stack) > 0;
         }
+
+        @Override
+        public void onSlotChanged() {
+            super.onSlotChanged();
+        }
     }
 
     private static final int LANTERN_INVENTORY_BLOCK = 0;
@@ -103,7 +113,7 @@ public class ContainerLantern extends ContainerBase {
     private static final int LANTERN_INVENTORY_ENTITY = 2;
 
     public static void open(PlayerEntity player, TileEntityLantern lantern) {
-        open(player, lantern.getWorld(), (packet) -> {
+        open(player, lantern.getWorld(), provider(lantern), (packet) -> {
             packet.writeInt(LANTERN_INVENTORY_BLOCK);
             PacketBufferUtil.writeTileEntity(packet, lantern);
         });
@@ -112,7 +122,7 @@ public class ContainerLantern extends ContainerBase {
     public static void open(PlayerEntity player, Hand hand, ItemStack stack) {
         ItemHandlerLantern lantern = LanternItemCache.getInstance().getLantern(player, stack);
         if(lantern != null) {
-            open(player, player.getEntityWorld(), (packet) -> {
+            open(player, player.getEntityWorld(), provider(stack), (packet) -> {
                 packet.writeInt(LANTERN_INVENTORY_ITEM);
                 packet.writeEnumValue(hand);
             });
@@ -120,22 +130,34 @@ public class ContainerLantern extends ContainerBase {
     }
 
     public static void open(PlayerEntity player, EntityLantern lantern) {
-        open(player, player.getEntityWorld(), (packet) -> {
+        open(player, player.getEntityWorld(), provider(lantern), (packet) -> {
             packet.writeInt(LANTERN_INVENTORY_ENTITY);
             PacketBufferUtil.writeEntity(packet, lantern);
         });
     }
 
     private static final ITextComponent NAME = new TranslationTextComponent(Lantern.instance.getModId() + ".container." + Names.Blocks.LANTERN);
-    private static final INamedContainerProvider NAME_PROVIDER = new SimpleNamedContainerProvider(Factory.getInstance(), NAME);
 
-    private static void open(PlayerEntity player, @Nullable World world, Consumer<PacketBuffer> packet) {
+    private static INamedContainerProvider provider(TileEntityLantern lantern) {
+        return new SimpleNamedContainerProvider((id, inv, name) -> new ContainerLantern(id, inv, lantern), NAME);
+    }
+
+    private static INamedContainerProvider provider(ItemStack lantern) {
+        return new SimpleNamedContainerProvider((id, inv, name) ->
+                new ContainerLantern(id, inv, ((ItemLantern) lantern.getItem()).getLantern(inv.player,lantern)), NAME);
+    }
+
+    private static INamedContainerProvider provider(EntityLantern lantern) {
+        return new SimpleNamedContainerProvider((id, inv, name) -> new ContainerLantern(id, inv, lantern), NAME);
+    }
+
+    private static void open(PlayerEntity player, @Nullable World world, INamedContainerProvider provider, Consumer<PacketBuffer> packet) {
         if(world != null && !world.isRemote) {
-            NetworkHooks.openGui((ServerPlayerEntity) player, NAME_PROVIDER, packet);
+            NetworkHooks.openGui((ServerPlayerEntity) player, provider, packet);
         }
     }
 
-    public static final class Factory implements IContainerFactory<ContainerLantern>, IContainerProvider {
+    public static final class Factory implements IContainerFactory<ContainerLantern> {
         private static final Factory INSTANCE = new Factory();
 
         public static Factory getInstance() {
@@ -172,12 +194,6 @@ public class ContainerLantern extends ContainerBase {
             }
             return null;
         }
-
-        @Nullable
-        @Override
-        public ContainerLantern createMenu(int id, PlayerInventory inv, PlayerEntity player) {
-            return this.create(id, inv);
-        }
     }
 
     public static final class GuiFactory implements IInfinityContainerType.IGuiFactory<ContainerLantern> {
@@ -191,8 +207,9 @@ public class ContainerLantern extends ContainerBase {
 
         @Override
         @OnlyIn(Dist.CLIENT)
-        public GuiContainerLantern createGui(ContainerLantern container, PlayerInventory inventory, ITextComponent name) {
-            return new GuiContainerLantern(container, inventory, name);
+        @SuppressWarnings("unchecked")
+        public <U extends Screen & IHasContainer<ContainerLantern>> ScreenManager.IScreenFactory<ContainerLantern, U> getGuiScreenProvider() {
+            return (container, inventory, name) -> (U) new GuiContainerLantern(container, inventory, name);
         }
     }
 }

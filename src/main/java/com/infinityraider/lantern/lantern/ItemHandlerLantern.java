@@ -6,8 +6,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 
-import javax.annotation.Nonnull;
-
 public class ItemHandlerLantern implements ILantern, IInventoryLantern {
     private final ItemStack parentStack;
     private final LanternLogic logic;
@@ -20,6 +18,7 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
 
     public ItemHandlerLantern(ItemStack stack) {
         this.parentStack = stack;
+        this.fuelStack = ItemStack.EMPTY;
         this.loadStack();
         this.logic = new LanternLogic(this);
     }

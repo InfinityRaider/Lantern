@@ -3,8 +3,8 @@
 "parent": "block/block",
 "textures": {
     "particle": "#bronze",
-    "bronze": "boatlantern:blocks/bronze",
-    "lanternglass": "boatlantern:blocks/lanternglass_unlit"
+    "bronze": "lantern:blocks/bronze",
+    "lanternglass": "lantern:blocks/lanternglass_unlit"
 },
 "elements": [ 
 {
@@ -140,5 +140,40 @@
         "east":  { "uv": [ 7.5, 5, 8.5, 6 ], "texture": "#bronze" }
     }
 }
-]
+],
+    "display": {
+        "thirdperson_righthand": {
+            "rotation": [67.5, 0, 0],
+            "translation": [0, -2.5, -2],
+            "scale": [0.75, 0.75, 0.75]
+        },
+        "thirdperson_lefthand": {
+            "rotation": [67.5, 0, 0],
+            "translation": [0, -2.5, -2],
+            "scale": [0.75, 0.75, 0.75]
+        },
+        "firstperson_righthand": {
+            "translation": [2.5, 5.75, 0],
+            "scale": [0.75, 0.75, 0.75]
+        },
+        "firstperson_lefthand": {
+            "translation": [2.5, 5.75, 0],
+            "scale": [0.75, 0.75, 0.751]
+        },
+        "ground": {
+            "translation": [0, 5, 0]
+        },
+        "gui": {
+            "rotation": [30, 45, -1],
+            "translation": [0, 3.5, 0],
+            "scale": [1.3, 1.3, 1.3]
+        },
+        "head": {
+            "translation": [0, 14.25, 0]
+        },
+        "fixed": {
+            "translation": [0, 3.75, -0.25],
+            "scale": [1.5, 1.5, 1.5]
+        }
+    }
 }

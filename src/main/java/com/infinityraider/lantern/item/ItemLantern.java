@@ -1,9 +1,12 @@
 package com.infinityraider.lantern.item;
 
+import com.google.common.collect.ImmutableSet;
 import com.infinityraider.infinitylib.block.IInfinityBlock;
 import com.infinityraider.infinitylib.item.BlockItemBase;
+import com.infinityraider.infinitylib.item.InfinityItemProperty;
 import com.infinityraider.lantern.Lantern;
 import com.infinityraider.lantern.block.BlockLantern;
+import com.infinityraider.lantern.container.ContainerLantern;
 import com.infinityraider.lantern.entity.EntityLantern;
 import com.infinityraider.lantern.handler.LightingHandler;
 import com.infinityraider.lantern.lantern.ILantern;
@@ -14,6 +17,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.SoundType;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.item.BoatEntity;
@@ -40,6 +44,7 @@ import net.minecraftforge.items.IItemHandler;
 import javax.annotation.Nullable;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.util.List;
+import java.util.Set;
 
 public class ItemLantern extends BlockItemBase {
     private final BlockLantern block;
@@ -104,7 +109,7 @@ public class ItemLantern extends BlockItemBase {
         ItemStack stack = player.getHeldItem(hand);
         if(!world.isRemote) {
             if(player.isSneaking()) {
-                GuiHandler.getInstance().openGui(player, stack);
+                ContainerLantern.open(player, hand, stack);
             } else {
                 ILantern lantern = this.getLantern(player, stack);
                 if(lantern != null) {
@@ -126,7 +131,7 @@ public class ItemLantern extends BlockItemBase {
                 entity.copyFrom(lantern);
             }
             player.getEntityWorld().addEntity(entity);
-            player.inventory.setInventorySlotContents(player.inventory.currentItem, null);
+            player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
             entity.mountOnBoat(boat);
         }
     }
@@ -214,5 +219,18 @@ public class ItemLantern extends BlockItemBase {
                 }
             }
         };
+    }
+
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public Set<InfinityItemProperty> getModelProperties() {
+        return ImmutableSet.of(new InfinityItemProperty(new ResourceLocation(Lantern.instance.getModId(), BlockLantern.LIT.getName())) {
+            @Override
+            public float getValue(ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity entity) {
+                return (!stack.isEmpty()
+                        && stack.getItem() instanceof ItemLantern
+                        && ((ItemLantern) stack.getItem()).isLit(entity, stack)) ? 1 : 0;
+            }
+        });
     }
 }

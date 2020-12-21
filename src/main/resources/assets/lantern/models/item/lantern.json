@@ -1,0 +1,16 @@
+{
+  "overrides": [
+    {
+      "predicate": {
+        "lantern:lit": 0
+      },
+      "model": "lantern:block/lantern_unlit"
+    },
+    {
+      "predicate": {
+        "lantern:lit": 1
+      },
+      "model": "lantern:block/lantern_lit"
+    }
+  ]
+}

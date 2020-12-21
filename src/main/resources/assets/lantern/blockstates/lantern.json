@@ -1,12 +1,12 @@
 {
   "variants": {
-    "facing_x=false,hanging=false,lit=false": [{ "model": "boatlantern:lantern_unlit" }],
-    "facing_x=false,hanging=false,lit=true": [{ "model": "boatlantern:lantern_lit" }],
-    "facing_x=false,hanging=true,lit=false": [{ "model": "boatlantern:lantern_unlit_hanging" }],
-    "facing_x=false,hanging=true,lit=true": [{ "model": "boatlantern:lantern_lit_hanging" }],
-    "facing_x=true,hanging=false,lit=false": [{ "model": "boatlantern:lantern_unlit", "y": 90 }],
-    "facing_x=true,hanging=false,lit=true": [{ "model": "boatlantern:lantern_lit", "y": 90 }],
-    "facing_x=true,hanging=true,lit=false": [{ "model": "boatlantern:lantern_unlit_hanging", "y": 90 }],
-    "facing_x=true,hanging=true,lit=true": [{ "model": "boatlantern:lantern_lit_hanging", "y": 90 }]
+    "axis=z,hanging=false,lit=false": [{ "model": "lantern:block/lantern_unlit" }],
+    "axis=z,hanging=false,lit=true": [{ "model": "lantern:block/lantern_lit" }],
+    "axis=z,hanging=true,lit=false": [{ "model": "lantern:block/lantern_unlit_hanging" }],
+    "axis=z,hanging=true,lit=true": [{ "model": "lantern:block/lantern_lit_hanging" }],
+    "axis=x,hanging=false,lit=false": [{ "model": "lantern:block/lantern_unlit", "y": 90 }],
+    "axis=x,hanging=false,lit=true": [{ "model": "lantern:block/lantern_lit", "y": 90 }],
+    "axis=x,hanging=true,lit=false": [{ "model": "lantern:block/lantern_unlit_hanging", "y": 90 }],
+    "axis=x,hanging=true,lit=true": [{ "model": "lantern:block/lantern_lit_hanging", "y": 90 }]
   }
 }

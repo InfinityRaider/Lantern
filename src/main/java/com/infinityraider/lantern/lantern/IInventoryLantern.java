@@ -6,7 +6,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.ForgeHooks;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public interface IInventoryLantern extends IInventorySerializableItemHandler {
     ILantern getLantern();
@@ -18,47 +17,46 @@ public interface IInventoryLantern extends IInventorySerializableItemHandler {
 
     ItemStack getFuelStack();
 
-    IInventoryLantern setFuelStack(ItemStack stack);
+    IInventoryLantern setFuelStack(@Nonnull ItemStack stack);
 
-    @Nullable
+    @Nonnull
     @Override
     default ItemStack getStackInSlot(int index) {
         return this.getFuelStack();
     }
 
     @Override
-    default void setInventorySlotContents(int index, @Nullable ItemStack stack) {
+    default void setInventorySlotContents(int index, @Nonnull ItemStack stack) {
         this.setFuelStack(stack);
     }
 
-    @Nullable
     @Override
     default ItemStack decrStackSize(int index, int count) {
         ItemStack fuelStack = this.getStackInSlot(index);
-        if(fuelStack == null) {
-            return null;
+        if(fuelStack.isEmpty()) {
+            return fuelStack;
         }
         count = Math.min(count, fuelStack.getCount());
         ItemStack stack = fuelStack.copy();
         stack.setCount(count);
         fuelStack.setCount(fuelStack.getCount() - count);
         if(fuelStack.getCount() <= 0) {
-            this.setInventorySlotContents(index, null);
+            this.setInventorySlotContents(index, ItemStack.EMPTY);
         } else {
             this.markDirty();
         }
-        return stack.getCount() > 0 ? stack : null;
+        return stack.getCount() > 0 ? stack : ItemStack.EMPTY;
     }
 
-    @Nullable
     @Override
+    @Nonnull
     default ItemStack removeStackFromSlot(int index) {
         ItemStack fuelStack = this.getFuelStack();
         if(fuelStack == null) {
             return null;
         }
         ItemStack stack = fuelStack.copy();
-        this.setInventorySlotContents(index, null);
+        this.setInventorySlotContents(index, ItemStack.EMPTY);
         return stack;
     }
 
@@ -84,7 +82,7 @@ public interface IInventoryLantern extends IInventorySerializableItemHandler {
             return true;
         }
         ItemStack fuelStack = this.getStackInSlot(index);
-        if(fuelStack != null) {
+        if(!fuelStack.isEmpty()) {
             return ItemStack.areItemsEqual(fuelStack, stack) && ItemStack.areItemStackTagsEqual(fuelStack, stack);
         } else {
             return ForgeHooks.getBurnTime(stack) > 0;
@@ -98,6 +96,6 @@ public interface IInventoryLantern extends IInventorySerializableItemHandler {
 
     @Override
     default void clear() {
-        this.setInventorySlotContents(0, null);
+        this.setInventorySlotContents(0, ItemStack.EMPTY);
     }
 }

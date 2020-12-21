@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern":
+  [
+    " s ",
+    "sbs",
+    " p "
+  ],
+  "key":
+  {
+    "s":
+    {
+      "tag": "forge:rods/wooden"
+    },
+    "b":
+    {
+      "item": "minecraft:glass_bottle"
+    },
+    "p":
+    {
+      "tag": "minecraft:wooden_slabs"
+    }
+  },
+  "result":
+  {
+    "item": "lantern:lantern",
+    "count": 1
+  }
+}

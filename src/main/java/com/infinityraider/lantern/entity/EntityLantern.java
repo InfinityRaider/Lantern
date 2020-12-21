@@ -1,6 +1,7 @@
 package com.infinityraider.lantern.entity;
 
 import com.infinityraider.infinitylib.entity.EntityBase;
+import com.infinityraider.lantern.container.ContainerLantern;
 import com.infinityraider.lantern.handler.LightingHandler;
 import com.infinityraider.lantern.lantern.*;
 import com.infinityraider.lantern.network.MessageSyncServerPos;
@@ -50,6 +51,7 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
     public EntityLantern(EntityType<? extends EntityLantern> type, World world) {
         super(type, world);
         this.capabilityItemHandler = LazyOptional.of(() -> this);
+        this.fuelStack = ItemStack.EMPTY;
     }
 
     public EntityLantern(EntityType<? extends EntityLantern> type, Entity source) {
@@ -208,7 +210,7 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
     public ActionResultType processInitialInteract(PlayerEntity player, Hand hand) {
         if (player.isSneaking()) {
             if (!this.getEntityWorld().isRemote) {
-                GuiHandler.getInstance().openGui(player, this);
+                ContainerLantern.open(player, this);
             }
         } else {
             boolean lit = this.isLit();

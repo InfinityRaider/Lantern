@@ -20,6 +20,11 @@ public class GuiContainerLantern extends ContainerScreen<ContainerLantern> imple
     }
 
     @Override
+    protected void drawGuiContainerForegroundLayer(MatrixStack matrixStack, int x, int y) {
+        this.font.func_243248_b(matrixStack, this.title, (float) this.titleX, (float) this.titleY, 4210752);
+    }
+
+    @Override
     protected void drawGuiContainerBackgroundLayer(MatrixStack transforms, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.color4f(1, 1, 1, 1);
         this.bindTexture(TEXTURE);

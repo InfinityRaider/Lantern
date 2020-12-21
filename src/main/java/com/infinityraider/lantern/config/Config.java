@@ -45,8 +45,8 @@ public abstract class Config implements ConfigurationHandler.SidedModConfig {
                     .comment("set to true to disable lighting the world from lanterns in item or boat form")
                     .define("Disable world lighting",false);
             this.burnTimeMultiplier = builder
-                    .comment("Defines how long burnable items can burn in the lamp, the duration is the furnace burn time is multiplied by this number")
-                    .defineInRange("Burn time multiplier", 5, 1, 50);
+                    .comment("Defines how long burnable items can burn in the lamp, the duration is the furnace burn time multiplied by this number")
+                    .defineInRange("Burn time multiplier", 10, 1, 50);
         }
 
         @Override

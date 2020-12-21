@@ -4,6 +4,7 @@ import com.infinityraider.infinitylib.block.property.InfProperty;
 import com.infinityraider.infinitylib.block.property.InfPropertyConfiguration;
 import com.infinityraider.lantern.Lantern;
 import com.infinityraider.lantern.block.tile.TileEntityLantern;
+import com.infinityraider.lantern.container.ContainerLantern;
 import com.infinityraider.lantern.item.ItemLantern;
 import com.infinityraider.lantern.lantern.ItemHandlerLantern;
 import com.infinityraider.lantern.lantern.LanternItemCache;
@@ -112,7 +113,7 @@ public class BlockLantern extends BlockBaseTile<TileEntityLantern> {
             if(te instanceof TileEntityLantern) {
                 TileEntityLantern lantern = (TileEntityLantern) te;
                 if (player.isSneaking()) {
-                    GuiHandler.getInstance().openGui(player, lantern);
+                    ContainerLantern.open(player, lantern);
                 } else {
                     boolean lit = LIT.fetch(state);
                     if(lit || lantern.getRemainingBurnTicks() > 0 || lantern.consumeFuel()) {

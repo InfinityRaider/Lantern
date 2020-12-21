@@ -1,0 +1,12 @@
+{
+  "block.lantern.lantern": "Lantern",
+
+  "entity.lantern.lantern": "Lantern Boat",
+
+  "lantern.container.lantern": "Lantern",
+
+  "lantern.tooltip.place_lantern": "Right click on a block to place the lantern in the world",
+  "lantern.tooltip.open_gui": "Sneak + right click in the air to open the lantern gui",
+  "lantern.tooltip.toggle_lantern": "Right click in the air to toggle the lantern on/off",
+  "lantern.tooltip.create_lantern_boat": "Sneak + right click the lantern on a boat to apply the lantern to a boat"
+}

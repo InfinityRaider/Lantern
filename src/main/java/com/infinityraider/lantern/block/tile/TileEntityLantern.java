@@ -12,6 +12,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -27,6 +28,7 @@ public class TileEntityLantern extends TileEntityBase implements ILantern, IInve
     public TileEntityLantern() {
         super(Lantern.instance.getModTileRegistry().lantern);
         this.capability = LazyOptional.of(() -> this);
+        this.fuelStack = ItemStack.EMPTY;
     }
 
     @Override
@@ -106,7 +108,8 @@ public class TileEntityLantern extends TileEntityBase implements ILantern, IInve
 
     @Override
     public void tick() {
-        if(!this.getWorld().isRemote) {
+        World world = this.getWorld();
+        if(world != null && !world.isRemote) {
             this.lanternLogic.burnUpdate();
         }
     }
