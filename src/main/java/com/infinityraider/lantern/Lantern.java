@@ -1,7 +1,7 @@
 package com.infinityraider.lantern;
 
 import com.infinityraider.lantern.config.Config;
-import com.infinityraider.lantern.network.MessageSyncServerPos;
+import com.infinityraider.lantern.network.MessageApplyLanternToBoat;
 import com.infinityraider.lantern.proxy.ClientProxy;
 import com.infinityraider.lantern.proxy.IProxy;
 import com.infinityraider.lantern.proxy.ServerProxy;
@@ -66,6 +66,6 @@ public class Lantern extends InfinityMod<IProxy, Config> {
 
     @Override
     public void registerMessages(INetworkWrapper wrapper) {
-        wrapper.registerMessage(MessageSyncServerPos.class);
+        wrapper.registerMessage(MessageApplyLanternToBoat.class);
     }
 }

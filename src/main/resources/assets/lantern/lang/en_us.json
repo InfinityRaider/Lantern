@@ -1,7 +1,7 @@
 {
-  "block.lantern.lantern": "Lantern",
+  "block.lantern.lantern": "Portable Lantern",
 
-  "entity.lantern.lantern": "Lantern Boat",
+  "entity.lantern.lantern": "Boat Lantern",
 
   "lantern.container.lantern": "Lantern",
 

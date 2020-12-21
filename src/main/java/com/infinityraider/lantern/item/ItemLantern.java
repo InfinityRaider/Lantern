@@ -131,8 +131,10 @@ public class ItemLantern extends BlockItemBase {
                 entity.copyFrom(lantern);
             }
             player.getEntityWorld().addEntity(entity);
-            player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
             entity.mountOnBoat(boat);
+            if(!player.isCreative()) {
+                player.inventory.setInventorySlotContents(player.inventory.currentItem, ItemStack.EMPTY);
+            }
         }
     }
 

@@ -1,10 +1,10 @@
 package com.infinityraider.lantern.entity;
 
 import com.infinityraider.infinitylib.entity.EntityBase;
+import com.infinityraider.infinitylib.utility.CoordinateConsumer;
 import com.infinityraider.lantern.container.ContainerLantern;
 import com.infinityraider.lantern.handler.LightingHandler;
 import com.infinityraider.lantern.lantern.*;
-import com.infinityraider.lantern.network.MessageSyncServerPos;
 import com.infinityraider.lantern.reference.Names;
 import com.infinityraider.lantern.registry.BlockRegistry;
 import com.infinityraider.lantern.registry.EntityRegistry;
@@ -42,10 +42,6 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
     private final LazyOptional<IItemHandler> capabilityItemHandler;
     private final LanternLogic lanternLogic = new LanternLogic(this);
     private ItemStack fuelStack;
-
-    private double prevX;
-    private double prevY;
-    private double prevZ;
 
     //For client side spawning
     public EntityLantern(EntityType<? extends EntityLantern> type, World world) {
@@ -118,47 +114,43 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
 
     @Override
     public void updateRidden() {
-        Entity entity = this.getRidingEntity();
-        if(entity == null) {
+        Entity mount = this.getRidingEntity();
+        if(mount == null) {
             this.dismount();
             return;
         }
-        if (this.isPassenger() && !entity.isAlive()) {
+        if (this.isPassenger() && !mount.isAlive()) {
             this.dismount();
         } else {
-            if(this.firstUpdate) {
-                this.prevX = this.getPosX();
-                this.prevY = this.getPosY();
-                this.prevZ = this.getPosZ();
-            }
             this.setMotion(0, 0, 0);
             this.tick();
-            double dx = -0.145;
-            double dy = 0.25;
-            double dz = -0.6;
-            double yaw = entity.rotationYaw;
-            double cosY = Math.cos(Math.toRadians(yaw));
-            double sinY = Math.sin(Math.toRadians(yaw));
-            double newX = entity.getPosX() + dx * cosY - dz * sinY;
-            double newY = entity.getPosY() + dy;
-            double newZ = entity.getPosZ() + dx * sinY + dz * cosY;
-            this.prevPosX = prevX;
-            this.prevPosY = prevY;
-            this.prevPosZ = prevZ;
-            this.lastTickPosX = this.prevX;
-            this.lastTickPosY = this.prevY;
-            this.lastTickPosZ = this.prevZ;
-            this.setPosition(newX, newY, newZ);
-            this.prevX = this.getPosX();
-            this.prevY = this.getPosY();
-            this.prevZ = this.getPosZ();
-            this.prevRotationYaw = this.rotationYaw;
-            this.setRenderYawOffset(entity.rotationYaw);
-            this.rotationYaw = entity.rotationYaw;
-            if(!this.getEntityWorld().isRemote) {
-                new MessageSyncServerPos(this).sendToAll();
-            }
+            float yaw = mount.rotationYaw;
+            this.calculatePosition(this.positionSetter, mount.getPosX(), mount.getPosY(), mount.getPosZ(), yaw);
+            //this.calculatePosition(this.prevPositionSetter, mount.prevPosX, mount.prevPosY, mount.prevPosZ, yaw);
+            //this.calculatePosition(this.lastTickPositionSetter, mount.lastTickPosX, mount.lastTickPosY, lastTickPosZ, yaw);
+            //this.prevRotationYaw = this.rotationYaw;
+            this.rotationYaw = yaw;
         }
+    }
+
+    private final CoordinateConsumer positionSetter = this::setPosition;
+    private final CoordinateConsumer prevPositionSetter = (x, y, z) -> {this.prevPosX = x; this.prevPosY = y; this.prevPosZ = z;};
+    private final CoordinateConsumer lastTickPositionSetter = (x, y, z) -> {this.lastTickPosX = x; this.lastTickPosY = y; this.lastTickPosZ = z;};
+
+    private void calculatePosition(CoordinateConsumer consumer, double mountX, double mountY, double mountZ, float mountYaw) {
+        // calculate yaw cosine and sine
+        double cosY = Math.cos(Math.toRadians(mountYaw));
+        double sinY = Math.sin(Math.toRadians(mountYaw));
+        // offset on boat
+        double dx = -0.145;
+        double dy = 0.25;
+        double dz = -0.6;
+        // calculate correct position:
+        double x = mountX + dx*cosY - dz*sinY;
+        double y = mountY + dy;
+        double z = mountZ + dx*sinY + dz*cosY;
+        // apply position
+        consumer.accept(x, y, z);
     }
 
     @Override
@@ -208,17 +200,19 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
 
     @Override
     public ActionResultType processInitialInteract(PlayerEntity player, Hand hand) {
+        if(this.getEntityWorld().isRemote || hand == Hand.OFF_HAND) {
+            return super.processInitialInteract(player, hand);
+        }
         if (player.isSneaking()) {
-            if (!this.getEntityWorld().isRemote) {
-                ContainerLantern.open(player, this);
-            }
+            ContainerLantern.open(player, this);
+            return ActionResultType.CONSUME;
         } else {
             boolean lit = this.isLit();
             if (lit || this.getRemainingBurnTicks() > 0 || this.consumeFuel()) {
                 this.setLit(!lit);
             }
+            return ActionResultType.CONSUME;
         }
-        return ActionResultType.CONSUME;
     }
 
     /**
@@ -254,15 +248,15 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
     @Override
     public void writeCustomEntityData(CompoundNBT tag) {
         this.writeInventoryToNBT(tag);
-        this.setLit(tag.getBoolean(Names.NBT.LIT));
-        this.setBurnTicks(tag.getInt(Names.NBT.BURN_TICKS));
+        tag.putBoolean(Names.NBT.LIT, this.isLit());
+        tag.putInt(Names.NBT.BURN_TICKS, this.getRemainingBurnTicks());
     }
 
     @Override
     public void readCustomEntityData(CompoundNBT tag) {
         this.readInventoryFromNBT(tag);
-        tag.putBoolean(Names.NBT.LIT, this.isLit());
-        tag.putInt(Names.NBT.BURN_TICKS, this.getRemainingBurnTicks());
+        this.setLit(tag.getBoolean(Names.NBT.LIT));
+        this.setBurnTicks(tag.getInt(Names.NBT.BURN_TICKS));
     }
 
     @Override
