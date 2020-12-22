@@ -31,12 +31,9 @@ import net.minecraftforge.fml.client.registry.IRenderFactory;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
-import javax.annotation.Nonnull;
-
 public class EntityLantern extends EntityBase implements ILantern, IInventoryLantern {
     public static final DataParameter<Boolean> DATA_LIT = EntityDataManager.createKey(EntityLantern.class, DataSerializers.BOOLEAN);
     public static final DataParameter<Integer> DATA_BURN_TICKS = EntityDataManager.createKey(EntityLantern.class, DataSerializers.VARINT);
-
 
     private final LazyOptional<IItemHandler> capabilityItemHandler;
     private final LanternLogic lanternLogic = new LanternLogic(this);
@@ -105,7 +102,7 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
         if(!this.getEntityWorld().isRemote) {
             this.lanternLogic.burnUpdate();
         }
-        if(this.getRidingEntity() == null) {
+        if(this.getRidingEntity() == null && !this.firstUpdate) {
             this.dropItems();
             this.setDead();
         }
@@ -113,16 +110,20 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
 
     @Override
     public void updateRidden() {
+        this.tick();
         Entity mount = this.getRidingEntity();
         if(mount == null) {
-            this.dismount();
+            if(!this.firstUpdate) {
+                this.dismount();
+            }
             return;
         }
         if (this.isPassenger() && !mount.isAlive()) {
-            this.dismount();
+            if(!this.firstUpdate) {
+                this.dismount();
+            }
         } else {
             this.setMotion(0, 0, 0);
-            this.tick();
             float yaw = mount.rotationYaw;
             // calculate yaw cosine and sine
             double cosY = Math.cos(Math.toRadians(yaw));
@@ -139,6 +140,10 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
             this.setPosition(x, y, z);
             this.rotationYaw = yaw;
         }
+    }
+
+    protected void setDead() {
+        super.setDead();
     }
 
     @Override
@@ -250,11 +255,6 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
     @Override
     public void markDirty() {}
 
-    @Override
-    public boolean isUsableByPlayer(PlayerEntity player) {
-        return false;
-    }
-
     public void mountOnBoat(BoatEntity boat) {
         this.startRiding(boat);
     }
@@ -267,11 +267,6 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
         } else {
             return super.getCapability(capability, facing);
         }
-    }
-
-    @Override
-    public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-        return false;
     }
 
     public static class SpawnFactory implements EntityType.IFactory<EntityLantern> {

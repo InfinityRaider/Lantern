@@ -20,6 +20,7 @@ public class EntityRegistry {
     private EntityRegistry() {
         this.entityLantern = EntityTypeBase.entityTypeBuilder(Names.Blocks.LANTERN, EntityLantern.class, EntityLantern.SpawnFactory.getInstance(),
                 EntityClassification.MISC, EntitySize.fixed(6 * Constants.UNIT, 11 * Constants.UNIT))
+                .setSerializable()
                 .setTrackingRange(32)
                 .setVelocityUpdates(true)
                 .setUpdateInterval(1)
