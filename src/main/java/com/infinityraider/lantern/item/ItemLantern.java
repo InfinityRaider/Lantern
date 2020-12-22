@@ -144,7 +144,7 @@ public class ItemLantern extends BlockItemBase {
             ItemHandlerLantern lantern = this.getLantern(entity, stack);
             if(lantern != null && !world.isRemote) {
                 lantern.updateTick();
-                LightingHandler.getInstance().playerLightTick(entity);
+                LightingHandler.getInstance(entity).playerLightTick(entity);
             }
         }
     }

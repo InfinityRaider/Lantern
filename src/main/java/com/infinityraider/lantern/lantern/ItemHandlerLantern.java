@@ -115,7 +115,7 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
         if(lit != status) {
             this.lit = status;
             if(!status && this.getEntity() != null) {
-                LightingHandler.getInstance().removeLastLight(this.getEntity());
+                LightingHandler.getInstance(this.getEntity()).removeLastLight(this.getEntity());
             }
             this.markDirty();
         }
@@ -146,7 +146,7 @@ public class ItemHandlerLantern implements ILantern, IInventoryLantern {
     @Override
     public void spreadLight() {
         if(this.entity != null) {
-            LightingHandler.getInstance().spreadLight(this.getEntity());
+            LightingHandler.getInstance(this.entity).spreadLight(this.getEntity());
         }
     }
 }

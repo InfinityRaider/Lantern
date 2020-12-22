@@ -70,7 +70,7 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
     public void setLit(boolean status) {
         boolean lit = this.isLit();
         if(lit && !status) {
-            LightingHandler.getInstance().removeLastLight(this);
+            LightingHandler.getInstance(this).removeLastLight(this);
         }
         this.getDataManager().set(DATA_LIT, status);
     }
@@ -183,7 +183,7 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
 
     @Override
     public void spreadLight() {
-        LightingHandler.getInstance().spreadLight(this);
+        LightingHandler.getInstance(this).spreadLight(this);
     }
 
     @Override
