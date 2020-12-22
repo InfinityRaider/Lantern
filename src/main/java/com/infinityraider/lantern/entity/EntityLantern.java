@@ -25,6 +25,8 @@ import net.minecraft.util.Direction;
 import net.minecraft.util.Hand;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fml.client.registry.IRenderFactory;
@@ -294,6 +296,7 @@ public class EntityLantern extends EntityBase implements ILantern, IInventoryLan
         private RenderFactory() {}
 
         @Override
+        @OnlyIn(Dist.CLIENT)
         public EntityRenderer<? super EntityLantern> createRenderFor(EntityRendererManager manager) {
             return new RenderEntityLantern(manager);
         }
