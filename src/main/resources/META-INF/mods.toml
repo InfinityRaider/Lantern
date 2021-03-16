@@ -1,11 +1,11 @@
 modLoader="javafml"
-loaderVersion="[35,)"
+loaderVersion="[36,)"
 license="license.txt"
 issueTrackerURL="https://github.com/InfinityRaider/Lantern/issues/"
 
 [[mods]]
 modId="lantern"
-version="1.16.4-2.0.0"
+version="1.16.5-2.0.1"
 displayName="Lantern"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/lantern"
 logoFile="logo.png"
@@ -17,13 +17,13 @@ Adds a portable Lantern to Minecraft
 [[dependencies.lantern]]
     modId="forge"
     mandatory=true
-    versionRange="[35,)"
+    versionRange="[36,)"
     ordering="AFTER"
     side="BOTH"
 
 [[dependencies.lantern]]
     modId="infinitylib"
     mandatory=true
-    versionRange="[1.16.4-2.0.0,)"
+    versionRange="[1.16.5-2.0.1,)"
     ordering="AFTER"
     side="BOTH"

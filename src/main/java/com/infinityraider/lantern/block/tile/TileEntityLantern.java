@@ -78,14 +78,14 @@ public class TileEntityLantern extends TileEntityBase implements ILantern, IInve
     public void setLit(boolean status) {
         boolean lit = this.isLit();
         if(lit != status) {
-            BlockState updated = BlockLantern.LIT.apply(this.getState(), status);
+            BlockState updated = BlockLantern.LIT.apply(this.getBlockState(), status);
             this.getWorld().setBlockState(this.getPos(), updated);
         }
     }
 
     @Override
     public boolean isLit() {
-        return BlockLantern.LIT.fetch(this.getState());
+        return BlockLantern.LIT.fetch(this.getBlockState());
     }
 
     @Override
