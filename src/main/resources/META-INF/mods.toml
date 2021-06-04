@@ -5,7 +5,7 @@ issueTrackerURL="https://github.com/InfinityRaider/Lantern/issues/"
 
 [[mods]]
 modId="lantern"
-version="1.16.5-2.0.1"
+version="1.16.5-2.0.2"
 displayName="Lantern"
 displayURL="https://www.curseforge.com/minecraft/mc-mods/lantern"
 logoFile="logo.png"
@@ -24,6 +24,6 @@ Adds a portable Lantern to Minecraft
 [[dependencies.lantern]]
     modId="infinitylib"
     mandatory=true
-    versionRange="[1.16.5-2.0.1,)"
+    versionRange="[1.16.5-2.0.3,)"
     ordering="AFTER"
     side="BOTH"
