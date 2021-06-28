@@ -25,6 +25,12 @@ public interface IInventoryLantern extends IInventorySerializableItemHandler {
         return this.getFuelStack();
     }
 
+    @Nonnull
+    @Override
+    default ItemStack getStackInInvSlot(int index) {
+        return this.getFuelStack();
+    }
+
     @Override
     default void setInventorySlotContents(int index, @Nonnull ItemStack stack) {
         this.setFuelStack(stack);

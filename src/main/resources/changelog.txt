@@ -1,5 +1,8 @@
 Changelog
 ---------
+2.03
+- FIXED: AbstractMethodException crash related IItemHandler
+
 2.0.2
 -CHANGE: update for Forge 36.1.0 and InfinityLib
 
